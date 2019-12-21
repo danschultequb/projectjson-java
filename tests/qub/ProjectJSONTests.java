@@ -145,6 +145,49 @@ public interface ProjectJSONTests
                     false);
             });
 
+            runner.testGroup("parse(File)", () ->
+            {
+                runner.test("with null", (Test test) ->
+                {
+                    test.assertThrows(() -> ProjectJSON.parse((File)null),
+                        new PreConditionFailure("projectJsonFile cannot be null."));
+                });
+
+                runner.test("with file that doesn't exist", (Test test) ->
+                {
+                    final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
+                    fileSystem.createRoot("/").await();
+                    final File file = fileSystem.getFile("/file.txt").await();
+                    test.assertThrows(() -> ProjectJSON.parse(file).await(),
+                        new FileNotFoundException("/file.txt"));
+                });
+
+                final Action2<String,ProjectJSON> parseTest = (String text, ProjectJSON expected) ->
+                {
+                    runner.test("with " + Strings.escapeAndQuote(text), (Test test) ->
+                    {
+                        final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
+                        fileSystem.createRoot("/").await();
+                        final File file = fileSystem.createFile("/file.txt").await();
+                        file.setContentsAsString(text).await();
+                        test.assertEqual(expected, ProjectJSON.parse(file).await());
+                    });
+                };
+
+                parseTest.run("{}", new ProjectJSON());
+                parseTest.run("{\"publisher\":\"a\"}", new ProjectJSON().setPublisher("a"));
+                parseTest.run("{\"publisher\":5}", new ProjectJSON());
+                parseTest.run("{\"project\":\"b\"}", new ProjectJSON().setProject("b"));
+                parseTest.run("{\"project\":true}", new ProjectJSON());
+                parseTest.run("{\"version\":\"c\"}", new ProjectJSON().setVersion("c"));
+                parseTest.run("{\"version\":10}", new ProjectJSON());
+                parseTest.run("{\"version\":[]}", new ProjectJSON());
+                parseTest.run("{\"java\":{}}", new ProjectJSON().setJava(new ProjectJSONJava()));
+                parseTest.run("{\"java\":[]}", new ProjectJSON());
+                parseTest.run("{\"java\":true}", new ProjectJSON());
+                parseTest.run("{\"java\":false}", new ProjectJSON());
+            });
+
             runner.testGroup("parse(String)", () ->
             {
                 final Action2<String,Throwable> parseErrorTest = (String text, Throwable expected) ->

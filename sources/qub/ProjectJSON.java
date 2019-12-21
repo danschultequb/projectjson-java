@@ -137,6 +137,26 @@ public class ProjectJSON
     }
 
     /**
+     * Parse a ProjectJSON object from the provided file.
+     * @param projectJsonFile The file to parse.
+     * @return The result of attempting to parse a ProjectJSON file.
+     */
+    public static Result<ProjectJSON> parse(File projectJsonFile)
+    {
+        PreCondition.assertNotNull(projectJsonFile, "projectJsonFile");
+
+        return Result.create(() ->
+        {
+            ProjectJSON result;
+            try (final ByteReadStream readStream = new BufferedByteReadStream(projectJsonFile.getContentByteReadStream().await()))
+            {
+                result = ProjectJSON.parse(readStream.asCharacterReadStream()).await();
+            }
+            return result;
+        });
+    }
+
+    /**
      * Parse a ProjectJSON object from the provided text.
      * @param text The text to parse.
      * @return The result of attempting to parse a ProjectJSON object.
