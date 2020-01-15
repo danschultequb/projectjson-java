@@ -332,7 +332,7 @@ public interface ProjectJSONJavaTests
                 {
                     runner.test("with " + Strings.escapeAndQuote(jsonString), (Test test) ->
                     {
-                        test.assertEqual(expected, ProjectJSONJava.parse(JSON.parseObject(jsonString)).await());
+                        test.assertEqual(expected, ProjectJSONJava.parse(JSON.parseObject(jsonString).await()).await());
                     });
                 };
 

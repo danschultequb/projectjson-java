@@ -201,7 +201,7 @@ public interface ProjectJSONTests
 
                 parseErrorTest.run(null, new PreConditionFailure("text cannot be null."));
                 parseErrorTest.run("", new PreConditionFailure("text cannot be empty."));
-                parseErrorTest.run("[]", new WrongTypeException("Expected the root of the JSON document to be an object."));
+                parseErrorTest.run("[]", new PreConditionFailure("tokenizer.getCurrent() ([) must be {."));
 
                 final Action2<String,ProjectJSON> parseTest = (String text, ProjectJSON expected) ->
                 {
@@ -238,7 +238,7 @@ public interface ProjectJSONTests
 
                 parseErrorTest.run(null, new PreConditionFailure("characters cannot be null."));
                 parseErrorTest.run("", new PreConditionFailure("characters cannot be empty."));
-                parseErrorTest.run("[]", new WrongTypeException("Expected the root of the JSON document to be an object."));
+                parseErrorTest.run("[]", new PreConditionFailure("tokenizer.getCurrent() ([) must be {."));
 
                 final Action2<String,ProjectJSON> parseTest = (String text, ProjectJSON expected) ->
                 {
@@ -274,8 +274,8 @@ public interface ProjectJSONTests
                 };
 
                 parseErrorTest.run(null, new PreConditionFailure("characters cannot be null."));
-                parseErrorTest.run("", new NotFoundException("No root was found in the JSON document."));
-                parseErrorTest.run("[]", new WrongTypeException("Expected the root of the JSON document to be an object."));
+                parseErrorTest.run("", new PreConditionFailure("tokenizer.hasCurrent() cannot be false."));
+                parseErrorTest.run("[]", new PreConditionFailure("tokenizer.getCurrent() ([) must be {."));
 
                 final Action2<String,ProjectJSON> parseTest = (String text, ProjectJSON expected) ->
                 {
@@ -311,7 +311,7 @@ public interface ProjectJSONTests
                 {
                     runner.test("with " + Strings.escapeAndQuote(text), (Test test) ->
                     {
-                        test.assertEqual(expected, ProjectJSON.parse(JSON.parseObject(text)).await());
+                        test.assertEqual(expected, ProjectJSON.parse(JSON.parseObject(text).await()).await());
                     });
                 };
 

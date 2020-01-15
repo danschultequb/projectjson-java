@@ -54,12 +54,10 @@ public interface ProjectSignatureTests
                     test.assertEqual("c", signature.getVersion());
                     test.assertEqual("a/b@c", signature.toString());
                     test.assertEqual(
-                        JSON.object(json ->
-                        {
-                            json.stringProperty("publisher", "a");
-                            json.stringProperty("project", "b");
-                            json.stringProperty("version", "c");
-                        }),
+                        JSONObject.create()
+                            .setString("publisher", "a")
+                            .setString("project", "b")
+                            .setString("version", "c"),
                         signature.toJson());
                 });
             });

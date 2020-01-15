@@ -70,16 +70,10 @@ public class ProjectSignature
 
     public JSONObject toJson()
     {
-        return JSON.object(this::toJson);
-    }
-
-    public void toJson(JSONObjectBuilder json)
-    {
-        PreCondition.assertNotNull(json, "json");
-
-        json.stringProperty(ProjectSignature.publisherPropertyName, this.publisher);
-        json.stringProperty(ProjectSignature.projectPropertyName, this.project);
-        json.stringProperty(ProjectSignature.versionPropertyName, this.version);
+        return JSONObject.create()
+            .setString(ProjectSignature.publisherPropertyName, this.publisher)
+            .setString(ProjectSignature.projectPropertyName, this.project)
+            .setString(ProjectSignature.versionPropertyName, this.version);
     }
 
     @Override
@@ -159,9 +153,9 @@ public class ProjectSignature
 
         return Result.create(() ->
         {
-            final String publisher = json.getStringPropertyValue(ProjectSignature.publisherPropertyName).await();
-            final String project = json.getStringPropertyValue(ProjectSignature.projectPropertyName).await();
-            final String version = json.getStringPropertyValue(ProjectSignature.versionPropertyName).await();
+            final String publisher = json.getString(ProjectSignature.publisherPropertyName).await();
+            final String project = json.getString(ProjectSignature.projectPropertyName).await();
+            final String version = json.getString(ProjectSignature.versionPropertyName).await();
             return new ProjectSignature(publisher, project, version);
         });
     }

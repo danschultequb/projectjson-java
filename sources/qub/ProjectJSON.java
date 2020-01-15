@@ -111,29 +111,28 @@ public class ProjectJSON
 
     public JSONObject toJson()
     {
-        return JSON.object(this::toJson);
-    }
-
-    public void toJson(JSONObjectBuilder builder)
-    {
-        PreCondition.assertNotNull(builder, "builder");
+        final JSONObject result = JSONObject.create();
 
         if (!Strings.isNullOrEmpty(this.publisher))
         {
-            builder.stringProperty(ProjectJSON.publisherPropertyName, this.publisher);
+            result.setString(ProjectJSON.publisherPropertyName, this.publisher);
         }
         if (!Strings.isNullOrEmpty(this.project))
         {
-            builder.stringProperty(ProjectJSON.projectPropertyName, this.project);
+            result.setString(ProjectJSON.projectPropertyName, this.project);
         }
         if (!Strings.isNullOrEmpty(this.version))
         {
-            builder.stringProperty(ProjectJSON.versionPropertyName, this.version);
+            result.setString(ProjectJSON.versionPropertyName, this.version);
         }
         if (this.java != null)
         {
-            builder.objectProperty(ProjectJSON.javaPropertyName, this.java::toJson);
+            result.set(ProjectJSON.javaPropertyName, this.java.toJson());
         }
+
+        PostCondition.assertNotNull(result, "result");
+
+        return result;
     }
 
     /**
@@ -189,8 +188,7 @@ public class ProjectJSON
     {
         PreCondition.assertNotNull(characters, "characters");
 
-        return JSON.parse(characters)
-            .getRootObject()
+        return JSON.parseObject(characters)
             .then((JSONObject rootObject) -> ProjectJSON.parse(rootObject).await());
     }
 
@@ -207,19 +205,19 @@ public class ProjectJSON
         {
             ProjectJSON projectJson = new ProjectJSON();
 
-            rootObject.getStringPropertyValue(ProjectJSON.publisherPropertyName)
+            rootObject.getString(ProjectJSON.publisherPropertyName)
                 .then(projectJson::setPublisher)
                 .catchError()
                 .await();
-            rootObject.getStringPropertyValue(ProjectJSON.projectPropertyName)
+            rootObject.getString(ProjectJSON.projectPropertyName)
                 .then(projectJson::setProject)
                 .catchError()
                 .await();
-            rootObject.getStringPropertyValue(ProjectJSON.versionPropertyName)
+            rootObject.getString(ProjectJSON.versionPropertyName)
                 .then(projectJson::setVersion)
                 .catchError()
                 .await();
-            rootObject.getObjectPropertyValue(ProjectJSON.javaPropertyName)
+            rootObject.getObject(ProjectJSON.javaPropertyName)
                 .then((JSONObject javaObject) -> projectJson.setJava(ProjectJSONJava.parse(javaObject).await()))
                 .catchError()
                 .await();
