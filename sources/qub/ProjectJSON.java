@@ -169,7 +169,7 @@ public class ProjectJSON
      */
     public static Result<ProjectJSON> parse(String text)
     {
-        PreCondition.assertNotNullAndNotEmpty(text, "text");
+        PreCondition.assertNotNull(text, "text");
 
         return ProjectJSON.parse(Strings.iterable(text));
     }
@@ -181,7 +181,7 @@ public class ProjectJSON
      */
     public static Result<ProjectJSON> parse(Iterable<Character> characters)
     {
-        PreCondition.assertNotNullAndNotEmpty(characters, "characters");
+        PreCondition.assertNotNull(characters, "characters");
 
         return ProjectJSON.parse(characters.iterate());
     }

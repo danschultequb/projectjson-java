@@ -200,8 +200,8 @@ public interface ProjectJSONTests
                 };
 
                 parseErrorTest.run(null, new PreConditionFailure("text cannot be null."));
-                parseErrorTest.run("", new PreConditionFailure("text cannot be empty."));
-                parseErrorTest.run("[]", new PreConditionFailure("tokenizer.getCurrent() ([) must be {."));
+                parseErrorTest.run("", new ParseException("Missing object left curly bracket ('{')."));
+                parseErrorTest.run("[]", new ParseException("Expected object left curly bracket ('{')."));
 
                 final Action2<String,ProjectJSON> parseTest = (String text, ProjectJSON expected) ->
                 {
@@ -237,8 +237,8 @@ public interface ProjectJSONTests
                 };
 
                 parseErrorTest.run(null, new PreConditionFailure("characters cannot be null."));
-                parseErrorTest.run("", new PreConditionFailure("characters cannot be empty."));
-                parseErrorTest.run("[]", new PreConditionFailure("tokenizer.getCurrent() ([) must be {."));
+                parseErrorTest.run("", new ParseException("Missing object left curly bracket ('{')."));
+                parseErrorTest.run("[]", new ParseException("Expected object left curly bracket ('{')."));
 
                 final Action2<String,ProjectJSON> parseTest = (String text, ProjectJSON expected) ->
                 {
@@ -274,8 +274,8 @@ public interface ProjectJSONTests
                 };
 
                 parseErrorTest.run(null, new PreConditionFailure("characters cannot be null."));
-                parseErrorTest.run("", new PreConditionFailure("tokenizer.hasCurrent() cannot be false."));
-                parseErrorTest.run("[]", new PreConditionFailure("tokenizer.getCurrent() ([) must be {."));
+                parseErrorTest.run("", new ParseException("Missing object left curly bracket ('{')."));
+                parseErrorTest.run("[]", new ParseException("Expected object left curly bracket ('{')."));
 
                 final Action2<String,ProjectJSON> parseTest = (String text, ProjectJSON expected) ->
                 {
