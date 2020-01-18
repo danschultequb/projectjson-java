@@ -257,7 +257,7 @@ public class ProjectJSONJava
                 .catchError()
                 .await();
             javaObject.getString(ProjectJSONJava.versionPropertyName)
-                .catchError(WrongTypeException.class, () -> javaObject.get(ProjectJSONJava.versionPropertyName, JSONNumber.class).await().toString())
+                .catchError(WrongTypeException.class, () -> javaObject.getNumberSegment(ProjectJSONJava.versionPropertyName).await().toString())
                 .then(result::setVersion)
                 .catchError()
                 .await();
