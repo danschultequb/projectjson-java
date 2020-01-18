@@ -320,6 +320,39 @@ public interface ProjectJSONJavaTests
                 toStringTest.run(new ProjectJSONJava().setDependencies(Iterable.create(new ProjectSignature("a", "b", "c"))), "{\"dependencies\":[{\"publisher\":\"a\",\"project\":\"b\",\"version\":\"c\"}]}");
             });
 
+            runner.testGroup("toString(JSONFormat)", () ->
+            {
+                final Action3<ProjectJSONJava,JSONFormat,String> toStringTest = (ProjectJSONJava projectJSONJava, JSONFormat format, String expected) ->
+                {
+                    runner.test("with " + projectJSONJava, (Test test) ->
+                    {
+                        test.assertEqual(expected, projectJSONJava.toString(format));
+                    });
+                };
+
+                toStringTest.run(new ProjectJSONJava(), JSONFormat.consise, "{}");
+                toStringTest.run(new ProjectJSONJava().setMainClass("a"), JSONFormat.consise, "{\"mainClass\":\"a\"}");
+                toStringTest.run(new ProjectJSONJava().setShortcutName("b"), JSONFormat.consise, "{\"shortcutName\":\"b\"}");
+                toStringTest.run(new ProjectJSONJava().setVersion("c"), JSONFormat.consise, "{\"version\":\"c\"}");
+                toStringTest.run(new ProjectJSONJava().setMaximumErrors(20), JSONFormat.consise, "{\"maximumErrors\":20}");
+                toStringTest.run(new ProjectJSONJava().setMaximumWarnings(30), JSONFormat.consise, "{\"maximumWarnings\":30}");
+                toStringTest.run(new ProjectJSONJava().setSourceFilePatterns(Iterable.create()), JSONFormat.consise, "{}");
+                toStringTest.run(new ProjectJSONJava().setSourceFilePatterns(Iterable.create(PathPattern.parse("*.java"))), JSONFormat.consise, "{\"sourceFiles\":[\"*.java\"]}");
+                toStringTest.run(new ProjectJSONJava().setDependencies(Iterable.create()), JSONFormat.consise, "{}");
+                toStringTest.run(new ProjectJSONJava().setDependencies(Iterable.create(new ProjectSignature("a", "b", "c"))), JSONFormat.consise, "{\"dependencies\":[{\"publisher\":\"a\",\"project\":\"b\",\"version\":\"c\"}]}");
+
+                toStringTest.run(new ProjectJSONJava(), JSONFormat.pretty, "{}");
+                toStringTest.run(new ProjectJSONJava().setMainClass("a"), JSONFormat.pretty, "{\n  \"mainClass\": \"a\"\n}");
+                toStringTest.run(new ProjectJSONJava().setShortcutName("b"), JSONFormat.pretty, "{\n  \"shortcutName\": \"b\"\n}");
+                toStringTest.run(new ProjectJSONJava().setVersion("c"), JSONFormat.pretty, "{\n  \"version\": \"c\"\n}");
+                toStringTest.run(new ProjectJSONJava().setMaximumErrors(20), JSONFormat.pretty, "{\n  \"maximumErrors\": 20\n}");
+                toStringTest.run(new ProjectJSONJava().setMaximumWarnings(30), JSONFormat.pretty, "{\n  \"maximumWarnings\": 30\n}");
+                toStringTest.run(new ProjectJSONJava().setSourceFilePatterns(Iterable.create()), JSONFormat.pretty, "{}");
+                toStringTest.run(new ProjectJSONJava().setSourceFilePatterns(Iterable.create(PathPattern.parse("*.java"))), JSONFormat.pretty, "{\n  \"sourceFiles\": [\n    \"*.java\"\n  ]\n}");
+                toStringTest.run(new ProjectJSONJava().setDependencies(Iterable.create()), JSONFormat.pretty, "{}");
+                toStringTest.run(new ProjectJSONJava().setDependencies(Iterable.create(new ProjectSignature("a", "b", "c"))), JSONFormat.pretty, "{\n  \"dependencies\": [\n    {\n      \"publisher\": \"a\",\n      \"project\": \"b\",\n      \"version\": \"c\"\n    }\n  ]\n}");
+            });
+
             runner.testGroup("parse(JSONObject)", () ->
             {
                 runner.test("with null", (Test test) ->

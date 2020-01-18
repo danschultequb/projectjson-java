@@ -345,6 +345,29 @@ public interface ProjectJSONTests
                 parseTest.run(new ProjectJSON().setVersion("c"), "{\"version\":\"c\"}");
                 parseTest.run(new ProjectJSON().setJava(new ProjectJSONJava()), "{\"java\":{}}");
             });
+
+            runner.testGroup("toString(JSONFormat)", () ->
+            {
+                final Action3<ProjectJSON,JSONFormat,String> parseTest = (ProjectJSON projectJson, JSONFormat format, String expected) ->
+                {
+                    runner.test("with " + projectJson, (Test test) ->
+                    {
+                        test.assertEqual(expected, projectJson.toString(format));
+                    });
+                };
+
+                parseTest.run(new ProjectJSON(), JSONFormat.consise, "{}");
+                parseTest.run(new ProjectJSON().setPublisher("a"), JSONFormat.consise, "{\"publisher\":\"a\"}");
+                parseTest.run(new ProjectJSON().setProject("b"), JSONFormat.consise, "{\"project\":\"b\"}");
+                parseTest.run(new ProjectJSON().setVersion("c"), JSONFormat.consise, "{\"version\":\"c\"}");
+                parseTest.run(new ProjectJSON().setJava(new ProjectJSONJava()), JSONFormat.consise, "{\"java\":{}}");
+
+                parseTest.run(new ProjectJSON(), JSONFormat.pretty, "{}");
+                parseTest.run(new ProjectJSON().setPublisher("a"), JSONFormat.pretty, "{\n  \"publisher\": \"a\"\n}");
+                parseTest.run(new ProjectJSON().setProject("b"), JSONFormat.pretty, "{\n  \"project\": \"b\"\n}");
+                parseTest.run(new ProjectJSON().setVersion("c"), JSONFormat.pretty, "{\n  \"version\": \"c\"\n}");
+                parseTest.run(new ProjectJSON().setJava(new ProjectJSONJava()), JSONFormat.pretty, "{\n  \"java\": {}\n}");
+            });
         });
     }
 }

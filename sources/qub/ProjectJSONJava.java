@@ -196,7 +196,14 @@ public class ProjectJSONJava
     @Override
     public String toString()
     {
-        return this.toJson().toString();
+        return this.toString(JSONFormat.consise);
+    }
+
+    public String toString(JSONFormat format)
+    {
+        PreCondition.assertNotNull(format, "format");
+
+        return this.toJson().toString(format);
     }
 
     public JSONObject toJson()
