@@ -148,7 +148,8 @@ public interface ProjectJSONJavaTests
                     runner.test("with " + Strings.escapeAndQuote(dependencies), (Test test) ->
                     {
                         final ProjectJSONJava projectJSONJava = new ProjectJSONJava();
-                        test.<ProjectJSONJava>assertSame(projectJSONJava, projectJSONJava.setDependencies(dependencies));
+                        final ProjectJSONJava setDependenciesResult = projectJSONJava.setDependencies(dependencies);
+                        test.assertSame(projectJSONJava, setDependenciesResult);
                         test.assertEqual(dependencies, projectJSONJava.getDependencies());
                     });
                 };
@@ -156,6 +157,313 @@ public interface ProjectJSONJavaTests
                 setDependenciesTest.run(null);
                 setDependenciesTest.run(Iterable.create());
                 setDependenciesTest.run(Iterable.create(new ProjectSignature("a", "b", "c")));
+            });
+
+            runner.testGroup("getTransitiveDependencies(QubFolder)", () ->
+            {
+                runner.test("with null", (Test test) ->
+                {
+                    final ProjectJSONJava projectJSONJava = new ProjectJSONJava();
+                    test.assertThrows(() -> projectJSONJava.getTransitiveDependencies(null),
+                        new PreConditionFailure("qubFolder cannot be null."));
+                });
+
+                runner.test("with unpublished dependency", (Test test) ->
+                {
+                    final ProjectJSONJava projectJSONJava = new ProjectJSONJava()
+                        .setDependencies(Iterable.create(
+                            new ProjectSignature("a", "b", "1")));
+
+                    final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
+                    fileSystem.createRoot("/").await();
+                    final QubFolder qubFolder = QubFolder.create(fileSystem.getFolder("/").await());
+
+                    test.assertEqual(
+                        Iterable.create(
+                            new ProjectSignature("a", "b", "1")),
+                        projectJSONJava.getTransitiveDependencies(qubFolder));
+                });
+
+                runner.test("with unpublished dependency with invalid folder characters", (Test test) ->
+                {
+                    final ProjectJSONJava projectJSONJava = new ProjectJSONJava()
+                        .setDependencies(Iterable.create(
+                            new ProjectSignature("a", "b?", "1")));
+
+                    final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
+                    fileSystem.createRoot("/").await();
+                    final QubFolder qubFolder = QubFolder.create(fileSystem.getFolder("/").await());
+
+                    test.assertEqual(
+                        Iterable.create(
+                            new ProjectSignature("a", "b?", "1")),
+                        projectJSONJava.getTransitiveDependencies(qubFolder));
+                });
+
+                runner.test("with unpublished dependency with no project.json file", (Test test) ->
+                {
+                    final ProjectJSONJava projectJSONJava = new ProjectJSONJava()
+                        .setDependencies(Iterable.create(
+                            new ProjectSignature("a", "b", "1")));
+
+                    final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
+                    fileSystem.createRoot("/").await();
+                    final QubFolder qubFolder = QubFolder.create(fileSystem.getFolder("/").await());
+                    qubFolder.getProjectVersionFolder("a", "b", "1").await().create().await();
+
+                    test.assertEqual(
+                        Iterable.create(
+                            new ProjectSignature("a", "b", "1")),
+                        projectJSONJava.getTransitiveDependencies(qubFolder));
+                });
+
+                runner.test("with published dependency with no dependencies", (Test test) ->
+                {
+                    final ProjectJSONJava projectJSONJava = new ProjectJSONJava()
+                        .setDependencies(Iterable.create(
+                            new ProjectSignature("a", "b", "1")));
+
+                    final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
+                    fileSystem.createRoot("/").await();
+                    final QubFolder qubFolder = QubFolder.create(fileSystem.getFolder("/").await());
+                    qubFolder.getProjectJSONFile("a", "b", "1").await()
+                        .setContentsAsString(new ProjectJSON()
+                            .toString());
+
+                    test.assertEqual(
+                        Iterable.create(
+                            new ProjectSignature("a", "b", "1")),
+                        projectJSONJava.getTransitiveDependencies(qubFolder));
+                });
+
+                runner.test("with published dependency with unpublished dependency", (Test test) ->
+                {
+                    final ProjectJSONJava projectJSONJava = new ProjectJSONJava()
+                        .setDependencies(Iterable.create(
+                            new ProjectSignature("a", "b", "1")));
+
+                    final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
+                    fileSystem.createRoot("/").await();
+                    final QubFolder qubFolder = QubFolder.create(fileSystem.getFolder("/").await());
+                    qubFolder.getProjectJSONFile("a", "b", "1").await()
+                        .setContentsAsString(new ProjectJSON()
+                            .setJava(new ProjectJSONJava()
+                                .setDependencies(Iterable.create(
+                                    new ProjectSignature("c", "d", "2"))))
+                            .toString());
+
+                    test.assertEqual(
+                        Iterable.create(
+                            new ProjectSignature("a", "b", "1"),
+                            new ProjectSignature("c", "d", "2")),
+                        projectJSONJava.getTransitiveDependencies(qubFolder));
+                });
+
+                runner.test("with published dependencies", (Test test) ->
+                {
+                    final ProjectJSONJava projectJSONJava = new ProjectJSONJava()
+                        .setDependencies(Iterable.create(
+                            new ProjectSignature("a", "b", "1"),
+                            new ProjectSignature("x", "y", "z")));
+
+                    final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
+                    fileSystem.createRoot("/").await();
+                    final QubFolder qubFolder = QubFolder.create(fileSystem.getFolder("/").await());
+                    qubFolder.getProjectJSONFile("a", "b", "1").await()
+                        .setContentsAsString(new ProjectJSON()
+                            .setJava(new ProjectJSONJava()
+                                .setDependencies(Iterable.create(
+                                    new ProjectSignature("c", "d", "2"))))
+                            .toString());
+
+                    test.assertEqual(
+                        Iterable.create(
+                            new ProjectSignature("x", "y", "z"),
+                            new ProjectSignature("a", "b", "1"),
+                            new ProjectSignature("c", "d", "2")),
+                        projectJSONJava.getTransitiveDependencies(qubFolder));
+                });
+            });
+
+            runner.testGroup("getTransitiveDependencyPaths(QubFolder)", () ->
+            {
+                runner.test("with null", (Test test) ->
+                {
+                    final ProjectJSONJava projectJSONJava = new ProjectJSONJava();
+                    test.assertThrows(() -> projectJSONJava.getTransitiveDependencyPaths(null),
+                        new PreConditionFailure("qubFolder cannot be null."));
+                });
+
+                runner.test("with unpublished dependency", (Test test) ->
+                {
+                    final ProjectJSONJava projectJSONJava = new ProjectJSONJava()
+                        .setDependencies(Iterable.create(
+                            new ProjectSignature("a", "b", "1")));
+
+                    final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
+                    fileSystem.createRoot("/").await();
+                    final QubFolder qubFolder = QubFolder.create(fileSystem.getFolder("/").await());
+
+                    test.assertEqual(
+                        Map.<ProjectSignature,Iterable<ProjectSignature>>create()
+                            .set(new ProjectSignature("a", "b", "1"), Iterable.create()),
+                        projectJSONJava.getTransitiveDependencyPaths(qubFolder));
+                });
+
+                runner.test("with unpublished dependency with invalid folder characters", (Test test) ->
+                {
+                    final ProjectJSONJava projectJSONJava = new ProjectJSONJava()
+                        .setDependencies(Iterable.create(
+                            new ProjectSignature("a", "b?", "1")));
+
+                    final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
+                    fileSystem.createRoot("/").await();
+                    final QubFolder qubFolder = QubFolder.create(fileSystem.getFolder("/").await());
+
+                    test.assertEqual(
+                        Map.<ProjectSignature,Iterable<ProjectSignature>>create()
+                            .set(new ProjectSignature("a", "b?", "1"), Iterable.create()),
+                        projectJSONJava.getTransitiveDependencyPaths(qubFolder));
+                });
+
+                runner.test("with unpublished dependency with no project.json file", (Test test) ->
+                {
+                    final ProjectJSONJava projectJSONJava = new ProjectJSONJava()
+                        .setDependencies(Iterable.create(
+                            new ProjectSignature("a", "b", "1")));
+
+                    final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
+                    fileSystem.createRoot("/").await();
+                    final QubFolder qubFolder = QubFolder.create(fileSystem.getFolder("/").await());
+                    qubFolder.getProjectVersionFolder("a", "b", "1").await().create().await();
+
+                    test.assertEqual(
+                        Map.<ProjectSignature,Iterable<ProjectSignature>>create()
+                            .set(new ProjectSignature("a", "b", "1"), Iterable.create()),
+                        projectJSONJava.getTransitiveDependencyPaths(qubFolder));
+                });
+
+                runner.test("with published dependency with no dependencies", (Test test) ->
+                {
+                    final ProjectJSONJava projectJSONJava = new ProjectJSONJava()
+                        .setDependencies(Iterable.create(
+                            new ProjectSignature("a", "b", "1")));
+
+                    final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
+                    fileSystem.createRoot("/").await();
+                    final QubFolder qubFolder = QubFolder.create(fileSystem.getFolder("/").await());
+                    qubFolder.getProjectJSONFile("a", "b", "1").await()
+                        .setContentsAsString(new ProjectJSON()
+                            .toString());
+
+                    test.assertEqual(
+                        Map.<ProjectSignature,Iterable<ProjectSignature>>create()
+                            .set(new ProjectSignature("a", "b", "1"), Iterable.create()),
+                        projectJSONJava.getTransitiveDependencyPaths(qubFolder));
+                });
+
+                runner.test("with published dependency with unpublished dependency", (Test test) ->
+                {
+                    final ProjectJSONJava projectJSONJava = new ProjectJSONJava()
+                        .setDependencies(Iterable.create(
+                            new ProjectSignature("a", "b", "1")));
+
+                    final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
+                    fileSystem.createRoot("/").await();
+                    final QubFolder qubFolder = QubFolder.create(fileSystem.getFolder("/").await());
+                    qubFolder.getProjectJSONFile("a", "b", "1").await()
+                        .setContentsAsString(new ProjectJSON()
+                            .setJava(new ProjectJSONJava()
+                                .setDependencies(Iterable.create(
+                                    new ProjectSignature("c", "d", "2"))))
+                            .toString());
+
+                    test.assertEqual(
+                        Map.<ProjectSignature,Iterable<ProjectSignature>>create()
+                            .set(new ProjectSignature("a", "b", "1"), Iterable.create())
+                            .set(new ProjectSignature("c", "d", "2"), Iterable.create(
+                                new ProjectSignature("a", "b", "1"))),
+                        projectJSONJava.getTransitiveDependencyPaths(qubFolder));
+                });
+
+                runner.test("with published dependencies", (Test test) ->
+                {
+                    final ProjectJSONJava projectJSONJava = new ProjectJSONJava()
+                        .setDependencies(Iterable.create(
+                            new ProjectSignature("a", "b", "1"),
+                            new ProjectSignature("x", "y", "z")));
+
+                    final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
+                    fileSystem.createRoot("/").await();
+                    final QubFolder qubFolder = QubFolder.create(fileSystem.getFolder("/").await());
+                    qubFolder.getProjectJSONFile("a", "b", "1").await()
+                        .setContentsAsString(new ProjectJSON()
+                            .setJava(new ProjectJSONJava()
+                                .setDependencies(Iterable.create(
+                                    new ProjectSignature("c", "d", "2"))))
+                            .toString());
+
+                    test.assertEqual(
+                        Map.<ProjectSignature,Iterable<ProjectSignature>>create()
+                            .set(new ProjectSignature("a", "b", "1"), Iterable.create())
+                            .set(new ProjectSignature("c", "d", "2"), Iterable.create(
+                                new ProjectSignature("a", "b", "1")))
+                            .set(new ProjectSignature("x", "y", "z"), Iterable.create()),
+                        projectJSONJava.getTransitiveDependencyPaths(qubFolder));
+                });
+
+                runner.test("with dependencies that reference the same published dependency", (Test test) ->
+                {
+                    final ProjectJSONJava projectJSONJava = new ProjectJSONJava()
+                        .setDependencies(Iterable.create(
+                            new ProjectSignature("a", "b", "1"),
+                            new ProjectSignature("x", "y", "z")));
+
+                    final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
+                    fileSystem.createRoot("/").await();
+                    final QubFolder qubFolder = QubFolder.create(fileSystem.getFolder("/").await());
+                    qubFolder.getProjectJSONFile("a", "b", "1").await()
+                        .setContentsAsString(new ProjectJSON()
+                            .setJava(new ProjectJSONJava()
+                                .setDependencies(Iterable.create(
+                                    new ProjectSignature("c", "d", "2"))))
+                            .toString());
+                    qubFolder.getProjectJSONFile("x", "y", "z").await()
+                        .setContentsAsString(new ProjectJSON()
+                            .setJava(new ProjectJSONJava()
+                                .setDependencies(Iterable.create(
+                                    new ProjectSignature("c", "d", "2"))))
+                            .toString());
+
+                    test.assertEqual(
+                        Map.<ProjectSignature,Iterable<ProjectSignature>>create()
+                            .set(new ProjectSignature("a", "b", "1"), Iterable.create())
+                            .set(new ProjectSignature("c", "d", "2"), Iterable.create(
+                                new ProjectSignature("a", "b", "1")))
+                            .set(new ProjectSignature("x", "y", "z"), Iterable.create()),
+                        projectJSONJava.getTransitiveDependencyPaths(qubFolder));
+                });
+
+                runner.test("with published dependency with empty dependencies", (Test test) ->
+                {
+                    final ProjectJSONJava projectJSONJava = new ProjectJSONJava()
+                        .setDependencies(Iterable.create(
+                            new ProjectSignature("a", "b", "1")));
+
+                    final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
+                    fileSystem.createRoot("/").await();
+                    final QubFolder qubFolder = QubFolder.create(fileSystem.getFolder("/").await());
+                    qubFolder.getProjectJSONFile("a", "b", "1").await()
+                        .setContentsAsString(new ProjectJSON()
+                            .setJava(new ProjectJSONJava()
+                                .setDependencies(Iterable.create()))
+                            .toString());
+
+                    test.assertEqual(
+                        Map.<ProjectSignature,Iterable<ProjectSignature>>create()
+                            .set(new ProjectSignature("a", "b", "1"), Iterable.create()),
+                        projectJSONJava.getTransitiveDependencyPaths(qubFolder));
+                });
             });
 
             runner.testGroup("equals(Object)", () ->

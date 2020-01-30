@@ -13,6 +13,10 @@ public class ProjectJSONJava
     public final static String maximumWarningsPropertyName = "maximumWarnings";
     public final static String dependenciesPropertyName = "dependencies";
 
+    public final static String projectSignaturePublisherPropertyName = "publisher";
+    public final static String projectSignatureProjectPropertyName = "project";
+    public final static String projectSignatureVersionPropertyName = "version";
+
     private String mainClass;
     private String shortcutName;
     private String version;
@@ -165,6 +169,108 @@ public class ProjectJSONJava
     }
 
     /**
+     * Get the transitive dependencies for this project (this project's dependencies, plus their
+     * dependencies, etc.).
+     * @param qubFolder The Qub folder where project's are published.
+     * @return The transitive dependencies for this project.
+     */
+    public Iterable<ProjectSignature> getTransitiveDependencies(QubFolder qubFolder)
+    {
+        PreCondition.assertNotNull(qubFolder, "qubFolder");
+
+        return Iterable.traverse(this.dependencies, (ProjectSignature dependency) ->
+        {
+            Iterable<ProjectSignature> dependencyDependencies = null;
+            final String publisher = dependency.getPublisher();
+            final String project = dependency.getProject();
+            final String version = dependency.getVersion();
+            final File dependencyProjectJsonFile = qubFolder.getProjectJSONFile(publisher, project, version)
+                .catchError()
+                .await();
+            if (dependencyProjectJsonFile != null)
+            {
+                final ProjectJSON dependencyProjectJson = ProjectJSON.parse(dependencyProjectJsonFile)
+                    .catchError()
+                    .await();
+                if (dependencyProjectJson != null)
+                {
+                    final ProjectJSONJava dependencyProjectJsonJava = dependencyProjectJson.getJava();
+                    if (dependencyProjectJsonJava != null)
+                    {
+                        dependencyDependencies = dependencyProjectJsonJava.getDependencies();
+                    }
+                }
+            }
+            if (dependencyDependencies == null)
+            {
+                dependencyDependencies = Iterable.create();
+            }
+            return dependencyDependencies;
+        });
+    }
+
+    /**
+     * Get the transitive dependencies for this project (this project's dependencies, plus their
+     * dependencies, etc.) with their dependency paths.
+     * @param qubFolder The Qub folder where project's are published.
+     * @return The transitive dependencies for this project with their dependency paths.
+     */
+    public Map<ProjectSignature,Iterable<ProjectSignature>> getTransitiveDependencyPaths(QubFolder qubFolder)
+    {
+        PreCondition.assertNotNull(qubFolder, "qubFolder");
+
+        final MutableMap<ProjectSignature,Iterable<ProjectSignature>> result = Map.create();
+        ProjectJSONJava.collectTransitiveDependencyPaths(qubFolder, this.dependencies, result, List.create());
+
+        PostCondition.assertNotNull(result, "result");
+
+        return result;
+    }
+
+    private static void collectTransitiveDependencyPaths(QubFolder qubFolder, Iterable<ProjectSignature> dependencies, MutableMap<ProjectSignature,Iterable<ProjectSignature>> resultMap, List<ProjectSignature> currentPath)
+    {
+        PreCondition.assertNotNull(qubFolder, "qubFolder");
+        PreCondition.assertNotNullAndNotEmpty(dependencies, "dependencies");
+        PreCondition.assertNotNull(resultMap, "resultMap");
+        PreCondition.assertNotNull(currentPath, "currentPath");
+
+        for (final ProjectSignature dependency : dependencies)
+        {
+            if (!resultMap.containsKey(dependency))
+            {
+                resultMap.set(dependency, currentPath.toArray());
+
+                final String publisher = dependency.getPublisher();
+                final String project = dependency.getProject();
+                final String version = dependency.getVersion();
+                final File dependencyProjectJsonFile = qubFolder.getProjectJSONFile(publisher, project, version)
+                    .catchError()
+                    .await();
+                if (dependencyProjectJsonFile != null)
+                {
+                    final ProjectJSON dependencyProjectJson = ProjectJSON.parse(dependencyProjectJsonFile)
+                        .catchError()
+                        .await();
+                    if (dependencyProjectJson != null)
+                    {
+                        final ProjectJSONJava dependencyProjectJsonJava = dependencyProjectJson.getJava();
+                        if (dependencyProjectJsonJava != null)
+                        {
+                            final Iterable<ProjectSignature> nextDependencies = dependencyProjectJsonJava.getDependencies();
+                            if (!Iterable.isNullOrEmpty(nextDependencies))
+                            {
+                                currentPath.add(dependency);
+                                ProjectJSONJava.collectTransitiveDependencyPaths(qubFolder, nextDependencies, resultMap, currentPath);
+                                currentPath.removeLast();
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    /**
      * Set the dependencies for this project.
      * @param dependencies The dependencies for this project.
      */
@@ -240,7 +346,9 @@ public class ProjectJSONJava
         }
         if (!Iterable.isNullOrEmpty(this.dependencies))
         {
-            result.set(ProjectJSONJava.dependenciesPropertyName, JSONArray.create(this.dependencies.map(ProjectSignature::toJson)));
+            result.set(
+                ProjectJSONJava.dependenciesPropertyName,
+                JSONArray.create(this.dependencies.map(ProjectJSONJava::projectSignatureToJson)));
         }
 
         PostCondition.assertNotNull(result, "result");
@@ -318,7 +426,7 @@ public class ProjectJSONJava
                             }
                             else if (dependencyElement instanceof JSONObject)
                             {
-                                dependency = ProjectSignature.parse((JSONObject)dependencyElement)
+                                dependency = ProjectJSONJava.parseProjectSignature((JSONObject)dependencyElement)
                                     .catchError()
                                     .await();
                             }
@@ -332,6 +440,29 @@ public class ProjectJSONJava
             PostCondition.assertNotNull(result, "result");
 
             return result;
+        });
+    }
+
+    public static JSONObject projectSignatureToJson(ProjectSignature projectSignature)
+    {
+        PreCondition.assertNotNull(projectSignature, "projectSignature");
+
+        return JSONObject.create()
+            .setString(ProjectJSONJava.projectSignaturePublisherPropertyName, projectSignature.getPublisher())
+            .setString(ProjectJSONJava.projectSignatureProjectPropertyName, projectSignature.getProject())
+            .setString(ProjectJSONJava.projectSignatureVersionPropertyName, projectSignature.getVersion());
+    }
+
+    public static Result<ProjectSignature> parseProjectSignature(JSONObject jsonObject)
+    {
+        PreCondition.assertNotNull(jsonObject, "jsonObject");
+
+        return Result.create(() ->
+        {
+            final String publisher = jsonObject.getString(ProjectJSONJava.projectSignaturePublisherPropertyName).await();
+            final String project = jsonObject.getString(ProjectJSONJava.projectSignatureProjectPropertyName).await();
+            final String version = jsonObject.getString(ProjectJSONJava.projectSignatureVersionPropertyName).await();
+            return new ProjectSignature(publisher, project, version);
         });
     }
 }
