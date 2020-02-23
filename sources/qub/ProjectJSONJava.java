@@ -184,9 +184,7 @@ public class ProjectJSONJava
             final String publisher = dependency.getPublisher();
             final String project = dependency.getProject();
             final String version = dependency.getVersion();
-            final File dependencyProjectJsonFile = qubFolder.getProjectJSONFile(publisher, project, version)
-                .catchError()
-                .await();
+            final File dependencyProjectJsonFile = ProjectJSONJava.getProjectJSONFile(qubFolder, publisher, project, version).await();
             if (dependencyProjectJsonFile != null)
             {
                 final ProjectJSON dependencyProjectJson = ProjectJSON.parse(dependencyProjectJsonFile)
@@ -243,9 +241,7 @@ public class ProjectJSONJava
                 final String publisher = dependency.getPublisher();
                 final String project = dependency.getProject();
                 final String version = dependency.getVersion();
-                final File dependencyProjectJsonFile = qubFolder.getProjectJSONFile(publisher, project, version)
-                    .catchError()
-                    .await();
+                final File dependencyProjectJsonFile = ProjectJSONJava.getProjectJSONFile(qubFolder, publisher, project, version).await();
                 if (dependencyProjectJsonFile != null)
                 {
                     final ProjectJSON dependencyProjectJson = ProjectJSON.parse(dependencyProjectJsonFile)
@@ -268,6 +264,23 @@ public class ProjectJSONJava
                 }
             }
         }
+    }
+
+    private static Result<File> getProjectJSONFile(QubFolder qubFolder, String publisher, String project, String version)
+    {
+        return Result.create(() ->
+        {
+            File result = qubFolder.getProjectJSONFile2(publisher, project, version)
+                .catchError()
+                .await();
+            if (result == null || !result.exists().await())
+            {
+                result = qubFolder.getProjectJSONFile(publisher, project, version)
+                    .catchError()
+                    .await();
+            }
+            return result;
+        });
     }
 
     /**
