@@ -294,7 +294,7 @@ public interface ProjectJSONJavaTests
                     final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
                     fileSystem.createRoot("/").await();
                     final QubFolder qubFolder = QubFolder.get(fileSystem.getFolder("/").await());
-                    qubFolder.getProjectJSONFile2("a", "b", "1").await()
+                    qubFolder.getProjectJSONFile("a", "b", "1").await()
                         .setContentsAsString(new ProjectJSON()
                             .setJava(new ProjectJSONJava()
                                 .setDependencies(Iterable.create(
@@ -499,7 +499,7 @@ public interface ProjectJSONJavaTests
                     final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
                     fileSystem.createRoot("/").await();
                     final QubFolder qubFolder = QubFolder.get(fileSystem.getFolder("/").await());
-                    qubFolder.getProjectJSONFile2("a", "b", "1").await()
+                    qubFolder.getProjectJSONFile("a", "b", "1").await()
                         .setContentsAsString(new ProjectJSON()
                             .setJava(new ProjectJSONJava()
                                 .setDependencies(Iterable.create()))
