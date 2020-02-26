@@ -8,7 +8,7 @@ public interface ProjectJSONTests
         {
             runner.test("constructor()", (Test test) ->
             {
-                final ProjectJSON projectJSON = new ProjectJSON();
+                final ProjectJSON projectJSON = ProjectJSON.create();
                 test.assertNull(projectJSON.getPublisher());
                 test.assertNull(projectJSON.getProject());
                 test.assertNull(projectJSON.getVersion());
@@ -17,70 +17,107 @@ public interface ProjectJSONTests
 
             runner.testGroup("setPublisher(String)", () ->
             {
+                final Action2<String,Throwable> setPublisherErrorTest = (String publisher, Throwable expected) ->
+                {
+                    runner.test("with " + Strings.escapeAndQuote(publisher), (Test test) ->
+                    {
+                        final ProjectJSON projectJSON = ProjectJSON.create();
+                        test.assertThrows(() -> projectJSON.setPublisher(publisher), expected);
+                        test.assertNull(projectJSON.getPublisher());
+                    });
+                };
+
+                setPublisherErrorTest.run(null, new PreConditionFailure("publisher cannot be null."));
+                setPublisherErrorTest.run("", new PreConditionFailure("publisher cannot be empty."));
+
                 final Action1<String> setPublisherTest = (String publisher) ->
                 {
                     runner.test("with " + Strings.escapeAndQuote(publisher), (Test test) ->
                     {
-                        final ProjectJSON projectJSON = new ProjectJSON();
+                        final ProjectJSON projectJSON = ProjectJSON.create();
                         test.<ProjectJSON>assertSame(projectJSON, projectJSON.setPublisher(publisher));
                         test.assertEqual(publisher, projectJSON.getPublisher());
                     });
                 };
 
-                setPublisherTest.run(null);
-                setPublisherTest.run("");
                 setPublisherTest.run("apples");
+                setPublisherTest.run("mangoes");
             });
 
             runner.testGroup("setProject(String)", () ->
             {
+                final Action2<String,Throwable> setProjectErrorTest = (String project, Throwable expected) ->
+                {
+                    runner.test("with " + Strings.escapeAndQuote(project), (Test test) ->
+                    {
+                        final ProjectJSON projectJSON = ProjectJSON.create();
+                        test.assertThrows(() -> projectJSON.setProject(project), expected);
+                        test.assertNull(projectJSON.getProject());
+                    });
+                };
+
+                setProjectErrorTest.run(null, new PreConditionFailure("project cannot be null."));
+                setProjectErrorTest.run("", new PreConditionFailure("project cannot be empty."));
+
                 final Action1<String> setProjectTest = (String project) ->
                 {
                     runner.test("with " + Strings.escapeAndQuote(project), (Test test) ->
                     {
-                        final ProjectJSON projectJSON = new ProjectJSON();
+                        final ProjectJSON projectJSON = ProjectJSON.create();
                         test.<ProjectJSON>assertSame(projectJSON, projectJSON.setProject(project));
                         test.assertEqual(project, projectJSON.getProject());
                     });
                 };
 
-                setProjectTest.run(null);
-                setProjectTest.run("");
                 setProjectTest.run("apples");
+                setProjectTest.run("bananas");
             });
 
             runner.testGroup("setVersion(String)", () ->
             {
+                final Action2<String,Throwable> setVersionErrorTest = (String version, Throwable expected) ->
+                {
+                    runner.test("with " + Strings.escapeAndQuote(version), (Test test) ->
+                    {
+                        final ProjectJSON projectJSON = ProjectJSON.create();
+                        test.assertThrows(() -> projectJSON.setVersion(version), expected);
+                        test.assertNull(projectJSON.getVersion());
+                    });
+                };
+
+                setVersionErrorTest.run(null, new PreConditionFailure("version cannot be null."));
+                setVersionErrorTest.run("", new PreConditionFailure("version cannot be empty."));
+
                 final Action1<String> setVersionTest = (String version) ->
                 {
                     runner.test("with " + Strings.escapeAndQuote(version), (Test test) ->
                     {
-                        final ProjectJSON projectJSON = new ProjectJSON();
+                        final ProjectJSON projectJSON = ProjectJSON.create();
                         test.<ProjectJSON>assertSame(projectJSON, projectJSON.setVersion(version));
                         test.assertEqual(version, projectJSON.getVersion());
                     });
                 };
 
-                setVersionTest.run(null);
-                setVersionTest.run("");
                 setVersionTest.run("apples");
+                setVersionTest.run("apricots");
             });
 
             runner.testGroup("setJava()", () ->
             {
                 runner.test("with null", (Test test) ->
                 {
-                    final ProjectJSON projectJSON = new ProjectJSON();
-                    test.assertSame(projectJSON, projectJSON.setJava(null));
+                    final ProjectJSON projectJSON = ProjectJSON.create();
+                    test.assertThrows(() -> projectJSON.setJava(null),
+                        new PreConditionFailure("java cannot be null."));
                     test.assertNull(projectJSON.getJava());
                 });
 
                 runner.test("with non-null", (Test test) ->
                 {
-                    final ProjectJSON projectJSON = new ProjectJSON();
-                    final ProjectJSONJava java = new ProjectJSONJava();
+                    final ProjectJSON projectJSON = ProjectJSON.create();
+                    final ProjectJSONJava java = ProjectJSONJava.create();
                     test.assertSame(projectJSON, projectJSON.setJava(java));
-                    test.assertSame(java, projectJSON.getJava());
+                    test.assertEqual(java, projectJSON.getJava());
                 });
             });
 
@@ -94,24 +131,24 @@ public interface ProjectJSONTests
                     });
                 };
 
-                equalsTest.run(new ProjectJSON(), null, false);
-                equalsTest.run(new ProjectJSON(), "hello", false);
-                equalsTest.run(new ProjectJSON(), new ProjectJSON(), true);
+                equalsTest.run(ProjectJSON.create(), null, false);
+                equalsTest.run(ProjectJSON.create(), "hello", false);
+                equalsTest.run(ProjectJSON.create(), ProjectJSON.create(), true);
                 equalsTest.run(
-                    new ProjectJSON().setPublisher("a"),
-                    new ProjectJSON().setPublisher("b"),
+                    ProjectJSON.create().setPublisher("a"),
+                    ProjectJSON.create().setPublisher("b"),
                     false);
                 equalsTest.run(
-                    new ProjectJSON().setProject("a"),
-                    new ProjectJSON().setProject("b"),
+                    ProjectJSON.create().setProject("a"),
+                    ProjectJSON.create().setProject("b"),
                     false);
                 equalsTest.run(
-                    new ProjectJSON().setVersion("a"),
-                    new ProjectJSON().setVersion("b"),
+                    ProjectJSON.create().setVersion("a"),
+                    ProjectJSON.create().setVersion("b"),
                     false);
                 equalsTest.run(
-                    new ProjectJSON().setJava(new ProjectJSONJava()),
-                    new ProjectJSON(),
+                    ProjectJSON.create().setJava(ProjectJSONJava.create()),
+                    ProjectJSON.create(),
                     false);
             });
 
@@ -125,23 +162,23 @@ public interface ProjectJSONTests
                     });
                 };
 
-                equalsTest.run(new ProjectJSON(), null, false);
-                equalsTest.run(new ProjectJSON(), new ProjectJSON(), true);
+                equalsTest.run(ProjectJSON.create(), null, false);
+                equalsTest.run(ProjectJSON.create(), ProjectJSON.create(), true);
                 equalsTest.run(
-                    new ProjectJSON().setPublisher("a"),
-                    new ProjectJSON().setPublisher("b"),
+                    ProjectJSON.create().setPublisher("a"),
+                    ProjectJSON.create().setPublisher("b"),
                     false);
                 equalsTest.run(
-                    new ProjectJSON().setProject("a"),
-                    new ProjectJSON().setProject("b"),
+                    ProjectJSON.create().setProject("a"),
+                    ProjectJSON.create().setProject("b"),
                     false);
                 equalsTest.run(
-                    new ProjectJSON().setVersion("a"),
-                    new ProjectJSON().setVersion("b"),
+                    ProjectJSON.create().setVersion("a"),
+                    ProjectJSON.create().setVersion("b"),
                     false);
                 equalsTest.run(
-                    new ProjectJSON().setJava(new ProjectJSONJava()),
-                    new ProjectJSON(),
+                    ProjectJSON.create().setJava(ProjectJSONJava.create()),
+                    ProjectJSON.create(),
                     false);
             });
 
@@ -174,18 +211,50 @@ public interface ProjectJSONTests
                     });
                 };
 
-                parseTest.run("{}", new ProjectJSON());
-                parseTest.run("{\"publisher\":\"a\"}", new ProjectJSON().setPublisher("a"));
-                parseTest.run("{\"publisher\":5}", new ProjectJSON());
-                parseTest.run("{\"project\":\"b\"}", new ProjectJSON().setProject("b"));
-                parseTest.run("{\"project\":true}", new ProjectJSON());
-                parseTest.run("{\"version\":\"c\"}", new ProjectJSON().setVersion("c"));
-                parseTest.run("{\"version\":10}", new ProjectJSON());
-                parseTest.run("{\"version\":[]}", new ProjectJSON());
-                parseTest.run("{\"java\":{}}", new ProjectJSON().setJava(new ProjectJSONJava()));
-                parseTest.run("{\"java\":[]}", new ProjectJSON());
-                parseTest.run("{\"java\":true}", new ProjectJSON());
-                parseTest.run("{\"java\":false}", new ProjectJSON());
+                parseTest.run(
+                    "{}",
+                    ProjectJSON.create());
+                parseTest.run(
+                    "{\"publisher\":\"a\"}",
+                    ProjectJSON.create().setPublisher("a"));
+                parseTest.run(
+                    "{\"publisher\":5}",
+                    ProjectJSON.create(JSONObject.create()
+                        .setNumber("publisher", 5)));
+                parseTest.run(
+                    "{\"project\":\"b\"}",
+                    ProjectJSON.create().setProject("b"));
+                parseTest.run(
+                    "{\"project\":true}",
+                    ProjectJSON.create(JSONObject.create()
+                        .setBoolean("project", true)));
+                parseTest.run(
+                    "{\"version\":\"c\"}",
+                    ProjectJSON.create().setVersion("c"));
+                parseTest.run(
+                    "{\"version\":10}",
+                    ProjectJSON.create(JSONObject.create()
+                        .setNumber("version", 10)));
+                parseTest.run(
+                    "{\"version\":[]}",
+                    ProjectJSON.create(JSONObject.create()
+                        .setArray("version", Iterable.create())));
+                parseTest.run(
+                    "{\"java\":{}}",
+                    ProjectJSON.create()
+                        .setJava(ProjectJSONJava.create()));
+                parseTest.run(
+                    "{\"java\":[]}",
+                    ProjectJSON.create(JSONObject.create()
+                        .setArray("java", Iterable.create())));
+                parseTest.run(
+                    "{\"java\":true}",
+                    ProjectJSON.create(JSONObject.create()
+                        .setBoolean("java", true)));
+                parseTest.run(
+                    "{\"java\":false}",
+                    ProjectJSON.create(JSONObject.create()
+                        .setBoolean("java", false)));
             });
 
             runner.testGroup("parse(String)", () ->
@@ -211,18 +280,50 @@ public interface ProjectJSONTests
                     });
                 };
 
-                parseTest.run("{}", new ProjectJSON());
-                parseTest.run("{\"publisher\":\"a\"}", new ProjectJSON().setPublisher("a"));
-                parseTest.run("{\"publisher\":5}", new ProjectJSON());
-                parseTest.run("{\"project\":\"b\"}", new ProjectJSON().setProject("b"));
-                parseTest.run("{\"project\":true}", new ProjectJSON());
-                parseTest.run("{\"version\":\"c\"}", new ProjectJSON().setVersion("c"));
-                parseTest.run("{\"version\":10}", new ProjectJSON());
-                parseTest.run("{\"version\":[]}", new ProjectJSON());
-                parseTest.run("{\"java\":{}}", new ProjectJSON().setJava(new ProjectJSONJava()));
-                parseTest.run("{\"java\":[]}", new ProjectJSON());
-                parseTest.run("{\"java\":true}", new ProjectJSON());
-                parseTest.run("{\"java\":false}", new ProjectJSON());
+                parseTest.run(
+                    "{}",
+                    ProjectJSON.create());
+                parseTest.run(
+                    "{\"publisher\":\"a\"}",
+                    ProjectJSON.create().setPublisher("a"));
+                parseTest.run(
+                    "{\"publisher\":5}",
+                    ProjectJSON.create(JSONObject.create()
+                        .setNumber("publisher", 5)));
+                parseTest.run(
+                    "{\"project\":\"b\"}",
+                    ProjectJSON.create().setProject("b"));
+                parseTest.run(
+                    "{\"project\":true}",
+                    ProjectJSON.create(JSONObject.create()
+                        .setBoolean("project", true)));
+                parseTest.run(
+                    "{\"version\":\"c\"}",
+                    ProjectJSON.create().setVersion("c"));
+                parseTest.run(
+                    "{\"version\":10}",
+                    ProjectJSON.create(JSONObject.create()
+                        .setNumber("version", 10)));
+                parseTest.run(
+                    "{\"version\":[]}",
+                    ProjectJSON.create(JSONObject.create()
+                        .setArray("version", Iterable.create())));
+                parseTest.run(
+                    "{\"java\":{}}",
+                    ProjectJSON.create()
+                        .setJava(ProjectJSONJava.create()));
+                parseTest.run(
+                    "{\"java\":[]}",
+                    ProjectJSON.create(JSONObject.create()
+                        .setArray("java", Iterable.create())));
+                parseTest.run(
+                    "{\"java\":true}",
+                    ProjectJSON.create(JSONObject.create()
+                        .setBoolean("java", true)));
+                parseTest.run(
+                    "{\"java\":false}",
+                    ProjectJSON.create(JSONObject.create()
+                        .setBoolean("java", false)));
             });
 
             runner.testGroup("parse(Iterable<Character>)", () ->
@@ -248,18 +349,50 @@ public interface ProjectJSONTests
                     });
                 };
 
-                parseTest.run("{}", new ProjectJSON());
-                parseTest.run("{\"publisher\":\"a\"}", new ProjectJSON().setPublisher("a"));
-                parseTest.run("{\"publisher\":5}", new ProjectJSON());
-                parseTest.run("{\"project\":\"b\"}", new ProjectJSON().setProject("b"));
-                parseTest.run("{\"project\":true}", new ProjectJSON());
-                parseTest.run("{\"version\":\"c\"}", new ProjectJSON().setVersion("c"));
-                parseTest.run("{\"version\":10}", new ProjectJSON());
-                parseTest.run("{\"version\":[]}", new ProjectJSON());
-                parseTest.run("{\"java\":{}}", new ProjectJSON().setJava(new ProjectJSONJava()));
-                parseTest.run("{\"java\":[]}", new ProjectJSON());
-                parseTest.run("{\"java\":true}", new ProjectJSON());
-                parseTest.run("{\"java\":false}", new ProjectJSON());
+                parseTest.run(
+                    "{}",
+                    ProjectJSON.create());
+                parseTest.run(
+                    "{\"publisher\":\"a\"}",
+                    ProjectJSON.create().setPublisher("a"));
+                parseTest.run(
+                    "{\"publisher\":5}",
+                    ProjectJSON.create(JSONObject.create()
+                        .setNumber("publisher", 5)));
+                parseTest.run(
+                    "{\"project\":\"b\"}",
+                    ProjectJSON.create().setProject("b"));
+                parseTest.run(
+                    "{\"project\":true}",
+                    ProjectJSON.create(JSONObject.create()
+                        .setBoolean("project", true)));
+                parseTest.run(
+                    "{\"version\":\"c\"}",
+                    ProjectJSON.create().setVersion("c"));
+                parseTest.run(
+                    "{\"version\":10}",
+                    ProjectJSON.create(JSONObject.create()
+                        .setNumber("version", 10)));
+                parseTest.run(
+                    "{\"version\":[]}",
+                    ProjectJSON.create(JSONObject.create()
+                        .setArray("version", Iterable.create())));
+                parseTest.run(
+                    "{\"java\":{}}",
+                    ProjectJSON.create()
+                        .setJava(ProjectJSONJava.create()));
+                parseTest.run(
+                    "{\"java\":[]}",
+                    ProjectJSON.create(JSONObject.create()
+                        .setArray("java", Iterable.create())));
+                parseTest.run(
+                    "{\"java\":true}",
+                    ProjectJSON.create(JSONObject.create()
+                        .setBoolean("java", true)));
+                parseTest.run(
+                    "{\"java\":false}",
+                    ProjectJSON.create(JSONObject.create()
+                        .setBoolean("java", false)));
             });
 
             runner.testGroup("parse(Iterator<Character>)", () ->
@@ -285,25 +418,57 @@ public interface ProjectJSONTests
                     });
                 };
 
-                parseTest.run("{}", new ProjectJSON());
-                parseTest.run("{\"publisher\":\"a\"}", new ProjectJSON().setPublisher("a"));
-                parseTest.run("{\"publisher\":5}", new ProjectJSON());
-                parseTest.run("{\"project\":\"b\"}", new ProjectJSON().setProject("b"));
-                parseTest.run("{\"project\":true}", new ProjectJSON());
-                parseTest.run("{\"version\":\"c\"}", new ProjectJSON().setVersion("c"));
-                parseTest.run("{\"version\":10}", new ProjectJSON());
-                parseTest.run("{\"version\":[]}", new ProjectJSON());
-                parseTest.run("{\"java\":{}}", new ProjectJSON().setJava(new ProjectJSONJava()));
-                parseTest.run("{\"java\":[]}", new ProjectJSON());
-                parseTest.run("{\"java\":true}", new ProjectJSON());
-                parseTest.run("{\"java\":false}", new ProjectJSON());
+                parseTest.run(
+                    "{}",
+                    ProjectJSON.create());
+                parseTest.run(
+                    "{\"publisher\":\"a\"}",
+                    ProjectJSON.create().setPublisher("a"));
+                parseTest.run(
+                    "{\"publisher\":5}",
+                    ProjectJSON.create(JSONObject.create()
+                        .setNumber("publisher", 5)));
+                parseTest.run(
+                    "{\"project\":\"b\"}",
+                    ProjectJSON.create().setProject("b"));
+                parseTest.run(
+                    "{\"project\":true}",
+                    ProjectJSON.create(JSONObject.create()
+                        .setBoolean("project", true)));
+                parseTest.run(
+                    "{\"version\":\"c\"}",
+                    ProjectJSON.create().setVersion("c"));
+                parseTest.run(
+                    "{\"version\":10}",
+                    ProjectJSON.create(JSONObject.create()
+                        .setNumber("version", 10)));
+                parseTest.run(
+                    "{\"version\":[]}",
+                    ProjectJSON.create(JSONObject.create()
+                        .setArray("version", Iterable.create())));
+                parseTest.run(
+                    "{\"java\":{}}",
+                    ProjectJSON.create()
+                        .setJava(ProjectJSONJava.create()));
+                parseTest.run(
+                    "{\"java\":[]}",
+                    ProjectJSON.create(JSONObject.create()
+                        .setArray("java", Iterable.create())));
+                parseTest.run(
+                    "{\"java\":true}",
+                    ProjectJSON.create(JSONObject.create()
+                        .setBoolean("java", true)));
+                parseTest.run(
+                    "{\"java\":false}",
+                    ProjectJSON.create(JSONObject.create()
+                        .setBoolean("java", false)));
             });
 
-            runner.testGroup("parse(JSONObject)", () ->
+            runner.testGroup("create(JSONObject)", () ->
             {
                 runner.test("with null", (Test test) ->
                 {
-                    test.assertThrows(() -> ProjectJSON.parse((JSONObject)null),
+                    test.assertThrows(() -> ProjectJSON.create((JSONObject)null),
                         new PreConditionFailure("rootObject cannot be null."));
                 });
 
@@ -311,22 +476,54 @@ public interface ProjectJSONTests
                 {
                     runner.test("with " + Strings.escapeAndQuote(text), (Test test) ->
                     {
-                        test.assertEqual(expected, ProjectJSON.parse(JSON.parseObject(text).await()).await());
+                        test.assertEqual(expected, ProjectJSON.create(JSON.parseObject(text).await()));
                     });
                 };
 
-                parseTest.run("{}", new ProjectJSON());
-                parseTest.run("{\"publisher\":\"a\"}", new ProjectJSON().setPublisher("a"));
-                parseTest.run("{\"publisher\":5}", new ProjectJSON());
-                parseTest.run("{\"project\":\"b\"}", new ProjectJSON().setProject("b"));
-                parseTest.run("{\"project\":true}", new ProjectJSON());
-                parseTest.run("{\"version\":\"c\"}", new ProjectJSON().setVersion("c"));
-                parseTest.run("{\"version\":10}", new ProjectJSON());
-                parseTest.run("{\"version\":[]}", new ProjectJSON());
-                parseTest.run("{\"java\":{}}", new ProjectJSON().setJava(new ProjectJSONJava()));
-                parseTest.run("{\"java\":[]}", new ProjectJSON());
-                parseTest.run("{\"java\":true}", new ProjectJSON());
-                parseTest.run("{\"java\":false}", new ProjectJSON());
+                parseTest.run(
+                    "{}",
+                    ProjectJSON.create());
+                parseTest.run(
+                    "{\"publisher\":\"a\"}",
+                    ProjectJSON.create().setPublisher("a"));
+                parseTest.run(
+                    "{\"publisher\":5}",
+                    ProjectJSON.create(JSONObject.create()
+                        .setNumber("publisher", 5)));
+                parseTest.run(
+                    "{\"project\":\"b\"}",
+                    ProjectJSON.create().setProject("b"));
+                parseTest.run(
+                    "{\"project\":true}",
+                    ProjectJSON.create(JSONObject.create()
+                        .setBoolean("project", true)));
+                parseTest.run(
+                    "{\"version\":\"c\"}",
+                    ProjectJSON.create().setVersion("c"));
+                parseTest.run(
+                    "{\"version\":10}",
+                    ProjectJSON.create(JSONObject.create()
+                        .setNumber("version", 10)));
+                parseTest.run(
+                    "{\"version\":[]}",
+                    ProjectJSON.create(JSONObject.create()
+                        .setArray("version", Iterable.create())));
+                parseTest.run(
+                    "{\"java\":{}}",
+                    ProjectJSON.create()
+                        .setJava(ProjectJSONJava.create()));
+                parseTest.run(
+                    "{\"java\":[]}",
+                    ProjectJSON.create(JSONObject.create()
+                        .setArray("java", Iterable.create())));
+                parseTest.run(
+                    "{\"java\":true}",
+                    ProjectJSON.create(JSONObject.create()
+                        .setBoolean("java", true)));
+                parseTest.run(
+                    "{\"java\":false}",
+                    ProjectJSON.create(JSONObject.create()
+                        .setBoolean("java", false)));
             });
 
             runner.testGroup("toString()", () ->
@@ -339,11 +536,11 @@ public interface ProjectJSONTests
                     });
                 };
 
-                parseTest.run(new ProjectJSON(), "{}");
-                parseTest.run(new ProjectJSON().setPublisher("a"), "{\"publisher\":\"a\"}");
-                parseTest.run(new ProjectJSON().setProject("b"), "{\"project\":\"b\"}");
-                parseTest.run(new ProjectJSON().setVersion("c"), "{\"version\":\"c\"}");
-                parseTest.run(new ProjectJSON().setJava(new ProjectJSONJava()), "{\"java\":{}}");
+                parseTest.run(ProjectJSON.create(), "{}");
+                parseTest.run(ProjectJSON.create().setPublisher("a"), "{\"publisher\":\"a\"}");
+                parseTest.run(ProjectJSON.create().setProject("b"), "{\"project\":\"b\"}");
+                parseTest.run(ProjectJSON.create().setVersion("c"), "{\"version\":\"c\"}");
+                parseTest.run(ProjectJSON.create().setJava(ProjectJSONJava.create()), "{\"java\":{}}");
             });
 
             runner.testGroup("toString(JSONFormat)", () ->
@@ -356,17 +553,17 @@ public interface ProjectJSONTests
                     });
                 };
 
-                parseTest.run(new ProjectJSON(), JSONFormat.consise, "{}");
-                parseTest.run(new ProjectJSON().setPublisher("a"), JSONFormat.consise, "{\"publisher\":\"a\"}");
-                parseTest.run(new ProjectJSON().setProject("b"), JSONFormat.consise, "{\"project\":\"b\"}");
-                parseTest.run(new ProjectJSON().setVersion("c"), JSONFormat.consise, "{\"version\":\"c\"}");
-                parseTest.run(new ProjectJSON().setJava(new ProjectJSONJava()), JSONFormat.consise, "{\"java\":{}}");
+                parseTest.run(ProjectJSON.create(), JSONFormat.consise, "{}");
+                parseTest.run(ProjectJSON.create().setPublisher("a"), JSONFormat.consise, "{\"publisher\":\"a\"}");
+                parseTest.run(ProjectJSON.create().setProject("b"), JSONFormat.consise, "{\"project\":\"b\"}");
+                parseTest.run(ProjectJSON.create().setVersion("c"), JSONFormat.consise, "{\"version\":\"c\"}");
+                parseTest.run(ProjectJSON.create().setJava(ProjectJSONJava.create()), JSONFormat.consise, "{\"java\":{}}");
 
-                parseTest.run(new ProjectJSON(), JSONFormat.pretty, "{}");
-                parseTest.run(new ProjectJSON().setPublisher("a"), JSONFormat.pretty, "{\n  \"publisher\": \"a\"\n}");
-                parseTest.run(new ProjectJSON().setProject("b"), JSONFormat.pretty, "{\n  \"project\": \"b\"\n}");
-                parseTest.run(new ProjectJSON().setVersion("c"), JSONFormat.pretty, "{\n  \"version\": \"c\"\n}");
-                parseTest.run(new ProjectJSON().setJava(new ProjectJSONJava()), JSONFormat.pretty, "{\n  \"java\": {}\n}");
+                parseTest.run(ProjectJSON.create(), JSONFormat.pretty, "{}");
+                parseTest.run(ProjectJSON.create().setPublisher("a"), JSONFormat.pretty, "{\n  \"publisher\": \"a\"\n}");
+                parseTest.run(ProjectJSON.create().setProject("b"), JSONFormat.pretty, "{\n  \"project\": \"b\"\n}");
+                parseTest.run(ProjectJSON.create().setVersion("c"), JSONFormat.pretty, "{\n  \"version\": \"c\"\n}");
+                parseTest.run(ProjectJSON.create().setJava(ProjectJSONJava.create()), JSONFormat.pretty, "{\n  \"java\": {}\n}");
             });
         });
     }

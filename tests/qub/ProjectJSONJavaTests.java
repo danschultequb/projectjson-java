@@ -8,83 +8,126 @@ public interface ProjectJSONJavaTests
         {
             runner.test("constructor()", (Test test) ->
             {
-                final ProjectJSONJava projectJSONJava = new ProjectJSONJava();
-                test.assertNull(projectJSONJava.getDependencies());
+                final ProjectJSONJava projectJSONJava = ProjectJSONJava.create();
                 test.assertNull(projectJSONJava.getMainClass());
                 test.assertNull(projectJSONJava.getShortcutName());
                 test.assertNull(projectJSONJava.getVersion());
                 test.assertNull(projectJSONJava.getOutputFolder());
                 test.assertNull(projectJSONJava.getMaximumErrors());
                 test.assertNull(projectJSONJava.getMaximumWarnings());
-                test.assertNull(projectJSONJava.getSourceFilePatterns());
-                test.assertNull(projectJSONJava.getDependencies());
+                test.assertEqual(Iterable.create(), projectJSONJava.getSourceFiles());
+                test.assertEqual(Iterable.create(), projectJSONJava.getDependencies());
             });
 
             runner.testGroup("setMainClass(String)", () ->
             {
+                final Action2<String,Throwable> setMainClassErrorTest = (String mainClass, Throwable expected) ->
+                {
+                    runner.test("with " + Strings.escapeAndQuote(mainClass), (Test test) ->
+                    {
+                        final ProjectJSONJava projectJSONJava = ProjectJSONJava.create();
+                        test.assertThrows(() -> projectJSONJava.setMainClass(mainClass), expected);
+                        test.assertNull(projectJSONJava.getMainClass());
+                    });
+                };
+
+                setMainClassErrorTest.run(null, new PreConditionFailure("mainClass cannot be null."));
+                setMainClassErrorTest.run("", new PreConditionFailure("mainClass cannot be empty."));
+
                 final Action1<String> setMainClassTest = (String mainClass) ->
                 {
                     runner.test("with " + Strings.escapeAndQuote(mainClass), (Test test) ->
                     {
-                        final ProjectJSONJava projectJSONJava = new ProjectJSONJava();
+                        final ProjectJSONJava projectJSONJava = ProjectJSONJava.create();
                         test.<ProjectJSONJava>assertSame(projectJSONJava, projectJSONJava.setMainClass(mainClass));
                         test.assertEqual(mainClass, projectJSONJava.getMainClass());
                     });
                 };
 
-                setMainClassTest.run(null);
-                setMainClassTest.run("");
                 setMainClassTest.run("hello");
             });
 
             runner.testGroup("setShortcutName(String)", () ->
             {
+                final Action2<String,Throwable> setShortcutNameErrorTest = (String shortcutName, Throwable expected) ->
+                {
+                    runner.test("with " + Strings.escapeAndQuote(shortcutName), (Test test) ->
+                    {
+                        final ProjectJSONJava projectJSONJava = ProjectJSONJava.create();
+                        test.assertThrows(() -> projectJSONJava.setShortcutName(shortcutName), expected);
+                        test.assertNull(projectJSONJava.getShortcutName());
+                    });
+                };
+
+                setShortcutNameErrorTest.run(null, new PreConditionFailure("shortcutName cannot be null."));
+                setShortcutNameErrorTest.run("", new PreConditionFailure("shortcutName cannot be empty."));
+
                 final Action1<String> setShortcutNameTest = (String shortcutName) ->
                 {
                     runner.test("with " + Strings.escapeAndQuote(shortcutName), (Test test) ->
                     {
-                        final ProjectJSONJava projectJSONJava = new ProjectJSONJava();
+                        final ProjectJSONJava projectJSONJava = ProjectJSONJava.create();
                         test.<ProjectJSONJava>assertSame(projectJSONJava, projectJSONJava.setShortcutName(shortcutName));
                         test.assertEqual(shortcutName, projectJSONJava.getShortcutName());
                     });
                 };
 
-                setShortcutNameTest.run(null);
-                setShortcutNameTest.run("");
                 setShortcutNameTest.run("hello");
             });
 
             runner.testGroup("setVersion(String)", () ->
             {
+                final Action2<String,Throwable> setVersionErrorTest = (String version, Throwable expected) ->
+                {
+                    runner.test("with " + Strings.escapeAndQuote(version), (Test test) ->
+                    {
+                        final ProjectJSONJava projectJSONJava = ProjectJSONJava.create();
+                        test.assertThrows(() -> projectJSONJava.setVersion(version), expected);
+                        test.assertNull(projectJSONJava.getVersion());
+                    });
+                };
+
+                setVersionErrorTest.run(null, new PreConditionFailure("version cannot be null."));
+                setVersionErrorTest.run("", new PreConditionFailure("version cannot be empty."));
+
                 final Action1<String> setVersionTest = (String version) ->
                 {
                     runner.test("with " + Strings.escapeAndQuote(version), (Test test) ->
                     {
-                        final ProjectJSONJava projectJSONJava = new ProjectJSONJava();
+                        final ProjectJSONJava projectJSONJava = ProjectJSONJava.create();
                         test.<ProjectJSONJava>assertSame(projectJSONJava, projectJSONJava.setVersion(version));
                         test.assertEqual(version, projectJSONJava.getVersion());
                     });
                 };
 
-                setVersionTest.run(null);
-                setVersionTest.run("");
                 setVersionTest.run("hello");
             });
 
             runner.testGroup("setOutputFolder(String)", () ->
             {
+                final Action2<String,Throwable> setOutputFolderErrorTest = (String outputFolder, Throwable expected) ->
+                {
+                    runner.test("with " + Strings.escapeAndQuote(outputFolder), (Test test) ->
+                    {
+                        final ProjectJSONJava projectJSONJava = ProjectJSONJava.create();
+                        test.assertThrows(() -> projectJSONJava.setOutputFolder(outputFolder), expected);
+                        test.assertNull(projectJSONJava.getOutputFolder());
+                    });
+                };
+
+                setOutputFolderErrorTest.run(null, new PreConditionFailure("outputFolder cannot be null."));
+                setOutputFolderErrorTest.run("", new PreConditionFailure("outputFolder cannot be empty."));
+
                 final Action1<String> setOutputFolderTest = (String outputFolder) ->
                 {
                     runner.test("with " + Strings.escapeAndQuote(outputFolder), (Test test) ->
                     {
-                        final ProjectJSONJava projectJSONJava = new ProjectJSONJava();
+                        final ProjectJSONJava projectJSONJava = ProjectJSONJava.create();
                         test.<ProjectJSONJava>assertSame(projectJSONJava, projectJSONJava.setOutputFolder(outputFolder));
                         test.assertEqual(outputFolder, projectJSONJava.getOutputFolder());
                     });
                 };
 
-                setOutputFolderTest.run(null);
-                setOutputFolderTest.run("");
                 setOutputFolderTest.run("hello");
             });
 
@@ -94,13 +137,12 @@ public interface ProjectJSONJavaTests
                 {
                     runner.test("with " + Strings.escapeAndQuote(maximumErrors), (Test test) ->
                     {
-                        final ProjectJSONJava projectJSONJava = new ProjectJSONJava();
+                        final ProjectJSONJava projectJSONJava = ProjectJSONJava.create();
                         test.<ProjectJSONJava>assertSame(projectJSONJava, projectJSONJava.setMaximumErrors(maximumErrors));
                         test.assertEqual(maximumErrors, projectJSONJava.getMaximumErrors());
                     });
                 };
 
-                setMaximumErrorsTest.run(null);
                 setMaximumErrorsTest.run(0);
                 setMaximumErrorsTest.run(-1);
                 setMaximumErrorsTest.run(1);
@@ -112,49 +154,192 @@ public interface ProjectJSONJavaTests
                 {
                     runner.test("with " + Strings.escapeAndQuote(maximumWarnings), (Test test) ->
                     {
-                        final ProjectJSONJava projectJSONJava = new ProjectJSONJava();
+                        final ProjectJSONJava projectJSONJava = ProjectJSONJava.create();
                         test.<ProjectJSONJava>assertSame(projectJSONJava, projectJSONJava.setMaximumWarnings(maximumWarnings));
                         test.assertEqual(maximumWarnings, projectJSONJava.getMaximumWarnings());
                     });
                 };
 
-                setMaximumWarningsTest.run(null);
                 setMaximumWarningsTest.run(0);
                 setMaximumWarningsTest.run(-1);
                 setMaximumWarningsTest.run(1);
             });
 
-            runner.testGroup("setSourceFilePatterns(Iterable<PathPattern>)", () ->
+            runner.testGroup("getSourceFiles()", () ->
             {
-                final Action1<Iterable<PathPattern>> setSourceFilePatternsTest = (Iterable<PathPattern> sourceFilePatterns) ->
+                final Action2<ProjectJSONJava,Iterable<PathPattern>> getSourceFilesTest = (ProjectJSONJava projectJsonJava, Iterable<PathPattern> expected) ->
                 {
-                    runner.test("with " + Strings.escapeAndQuote(sourceFilePatterns), (Test test) ->
+                    runner.test("with " + projectJsonJava, (Test test) ->
                     {
-                        final ProjectJSONJava projectJSONJava = new ProjectJSONJava();
-                        test.<ProjectJSONJava>assertSame(projectJSONJava, projectJSONJava.setSourceFilePatterns(sourceFilePatterns));
-                        test.assertEqual(sourceFilePatterns, projectJSONJava.getSourceFilePatterns());
+                        test.assertEqual(expected, projectJsonJava.getSourceFiles());
                     });
                 };
 
-                setSourceFilePatternsTest.run(null);
-                setSourceFilePatternsTest.run(Iterable.create());
-                setSourceFilePatternsTest.run(Iterable.create(PathPattern.parse("*.java")));
+                getSourceFilesTest.run(
+                    ProjectJSONJava.create(),
+                    Iterable.create());
+                getSourceFilesTest.run(
+                    ProjectJSONJava.create(JSONObject.create()
+                        .setNull("sourceFiles")),
+                    Iterable.create());
+                getSourceFilesTest.run(
+                    ProjectJSONJava.create(JSONObject.create()
+                        .setNumber("sourceFiles", 5)),
+                    Iterable.create());
+                getSourceFilesTest.run(
+                    ProjectJSONJava.create(JSONObject.create()
+                        .setString("sourceFiles", "")),
+                    Iterable.create());
+                getSourceFilesTest.run(
+                    ProjectJSONJava.create(JSONObject.create()
+                        .setString("sourceFiles", "hello")),
+                    Iterable.create(
+                        PathPattern.parse("hello")));
+                getSourceFilesTest.run(
+                    ProjectJSONJava.create(JSONObject.create()
+                        .setObject("sourceFiles", JSONObject.create())),
+                    Iterable.create());
+                getSourceFilesTest.run(
+                    ProjectJSONJava.create(JSONObject.create()
+                        .setArray("sourceFiles", Iterable.create())),
+                    Iterable.create());
+                getSourceFilesTest.run(
+                    ProjectJSONJava.create(JSONObject.create()
+                        .setArray("sourceFiles", Iterable.create(
+                            JSONString.get("apples")))),
+                    Iterable.create(
+                        PathPattern.parse("apples")));
+                getSourceFilesTest.run(
+                    ProjectJSONJava.create(JSONObject.create()
+                        .setArray("sourceFiles", Iterable.create(
+                            JSONString.get("apples"),
+                            JSONString.get(""),
+                            JSONString.get("bananas")))),
+                    Iterable.create(
+                        PathPattern.parse("apples"),
+                        PathPattern.parse("bananas")));
+                getSourceFilesTest.run(
+                    ProjectJSONJava.create(JSONObject.create()
+                        .setArray("sourceFiles", Iterable.create(
+                            JSONString.get("apples"),
+                            JSONNull.segment,
+                            JSONString.get("bananas")))),
+                    Iterable.create(
+                        PathPattern.parse("apples"),
+                        PathPattern.parse("bananas")));
+                getSourceFilesTest.run(
+                    ProjectJSONJava.create(JSONObject.create()
+                        .setArray("sourceFiles", Iterable.create(
+                            JSONBoolean.falseSegment))),
+                    Iterable.create());
+            });
+
+            runner.testGroup("setSourceFiles(Iterable<PathPattern>)", () ->
+            {
+                final Action2<Iterable<PathPattern>,Throwable> setSourceFilesErrorTest = (Iterable<PathPattern> sourceFilePatterns, Throwable expected) ->
+                {
+                    runner.test("with " + Strings.escapeAndQuote(sourceFilePatterns), (Test test) ->
+                    {
+                        final ProjectJSONJava projectJSONJava = ProjectJSONJava.create();
+                        test.assertThrows(() -> projectJSONJava.setSourceFiles(sourceFilePatterns), expected);
+                        test.assertEqual(Iterable.create(), projectJSONJava.getSourceFiles());
+                    });
+                };
+
+                setSourceFilesErrorTest.run(null, new PreConditionFailure("sourceFiles cannot be null."));
+
+                final Action1<Iterable<PathPattern>> setSourceFilesTest = (Iterable<PathPattern> sourceFilePatterns) ->
+                {
+                    runner.test("with " + Strings.escapeAndQuote(sourceFilePatterns), (Test test) ->
+                    {
+                        final ProjectJSONJava projectJSONJava = ProjectJSONJava.create();
+                        test.<ProjectJSONJava>assertSame(projectJSONJava, projectJSONJava.setSourceFiles(sourceFilePatterns));
+                        test.assertEqual(sourceFilePatterns, projectJSONJava.getSourceFiles());
+                    });
+                };
+
+                setSourceFilesTest.run(Iterable.create());
+                setSourceFilesTest.run(Iterable.create(PathPattern.parse("*.java")));
+            });
+
+            runner.testGroup("getDependencies()", () ->
+            {
+                final Action2<ProjectJSONJava,Iterable<ProjectSignature>> getDependenciesTest = (ProjectJSONJava projectJsonJava, Iterable<ProjectSignature> expected) ->
+                {
+                    runner.test("with " + projectJsonJava, (Test test) ->
+                    {
+                        test.assertEqual(expected, projectJsonJava.getDependencies());
+                    });
+                };
+
+                getDependenciesTest.run(
+                    ProjectJSONJava.create(),
+                    Iterable.create());
+                getDependenciesTest.run(
+                    ProjectJSONJava.create(JSONObject.create()
+                        .setNull("dependencies")),
+                    Iterable.create());
+                getDependenciesTest.run(
+                    ProjectJSONJava.create(JSONObject.create()
+                        .setNumber("dependencies", 5)),
+                    Iterable.create());
+                getDependenciesTest.run(
+                    ProjectJSONJava.create(JSONObject.create()
+                        .setObject("dependencies", JSONObject.create())),
+                    Iterable.create());
+                getDependenciesTest.run(
+                    ProjectJSONJava.create(JSONObject.create()
+                        .setArray("dependencies", Iterable.create())),
+                    Iterable.create());
+                getDependenciesTest.run(
+                    ProjectJSONJava.create(JSONObject.create()
+                        .setArray("dependencies", Iterable.create(
+                            ProjectJSONJava.projectSignatureToJson(new ProjectSignature("a", "b", "1"))))),
+                    Iterable.create(
+                        new ProjectSignature("a", "b", "1")));
+                getDependenciesTest.run(
+                    ProjectJSONJava.create(JSONObject.create()
+                        .setArray("dependencies", Iterable.create(
+                            JSONString.get("a/b@1")))),
+                    Iterable.create(
+                        new ProjectSignature("a", "b", "1")));
+                getDependenciesTest.run(
+                    ProjectJSONJava.create(JSONObject.create()
+                        .setArray("dependencies", Iterable.create(
+                            JSONString.get("hello")))),
+                    Iterable.create());
+                getDependenciesTest.run(
+                    ProjectJSONJava.create(JSONObject.create()
+                        .setArray("dependencies", Iterable.create(
+                            JSONBoolean.falseSegment))),
+                    Iterable.create());
             });
 
             runner.testGroup("setDependencies(Iterable<ProjectSignature>)", () ->
             {
+                final Action2<Iterable<ProjectSignature>,Throwable> setDependenciesErrorTest = (Iterable<ProjectSignature> dependencies, Throwable expected) ->
+                {
+                    runner.test("with " + Strings.escapeAndQuote(dependencies), (Test test) ->
+                    {
+                        final ProjectJSONJava projectJSONJava = ProjectJSONJava.create();
+                        test.assertThrows(() -> projectJSONJava.setDependencies(dependencies), expected);
+                        test.assertEqual(Iterable.create(), projectJSONJava.getDependencies());
+                    });
+                };
+
+                setDependenciesErrorTest.run(null, new PreConditionFailure("dependencies cannot be null."));
+
                 final Action1<Iterable<ProjectSignature>> setDependenciesTest = (Iterable<ProjectSignature> dependencies) ->
                 {
                     runner.test("with " + Strings.escapeAndQuote(dependencies), (Test test) ->
                     {
-                        final ProjectJSONJava projectJSONJava = new ProjectJSONJava();
+                        final ProjectJSONJava projectJSONJava = ProjectJSONJava.create();
                         final ProjectJSONJava setDependenciesResult = projectJSONJava.setDependencies(dependencies);
                         test.assertSame(projectJSONJava, setDependenciesResult);
                         test.assertEqual(dependencies, projectJSONJava.getDependencies());
                     });
                 };
 
-                setDependenciesTest.run(null);
                 setDependenciesTest.run(Iterable.create());
                 setDependenciesTest.run(Iterable.create(new ProjectSignature("a", "b", "c")));
             });
@@ -163,14 +348,14 @@ public interface ProjectJSONJavaTests
             {
                 runner.test("with null", (Test test) ->
                 {
-                    final ProjectJSONJava projectJSONJava = new ProjectJSONJava();
+                    final ProjectJSONJava projectJSONJava = ProjectJSONJava.create();
                     test.assertThrows(() -> projectJSONJava.getTransitiveDependencies(null),
                         new PreConditionFailure("qubFolder cannot be null."));
                 });
 
                 runner.test("with unpublished dependency", (Test test) ->
                 {
-                    final ProjectJSONJava projectJSONJava = new ProjectJSONJava()
+                    final ProjectJSONJava projectJSONJava = ProjectJSONJava.create()
                         .setDependencies(Iterable.create(
                             new ProjectSignature("a", "b", "1")));
 
@@ -186,7 +371,7 @@ public interface ProjectJSONJavaTests
 
                 runner.test("with unpublished dependency with invalid folder characters", (Test test) ->
                 {
-                    final ProjectJSONJava projectJSONJava = new ProjectJSONJava()
+                    final ProjectJSONJava projectJSONJava = ProjectJSONJava.create()
                         .setDependencies(Iterable.create(
                             new ProjectSignature("a", "b?", "1")));
 
@@ -202,7 +387,7 @@ public interface ProjectJSONJavaTests
 
                 runner.test("with unpublished dependency with no project.json file", (Test test) ->
                 {
-                    final ProjectJSONJava projectJSONJava = new ProjectJSONJava()
+                    final ProjectJSONJava projectJSONJava = ProjectJSONJava.create()
                         .setDependencies(Iterable.create(
                             new ProjectSignature("a", "b", "1")));
 
@@ -219,7 +404,7 @@ public interface ProjectJSONJavaTests
 
                 runner.test("with published dependency with no dependencies", (Test test) ->
                 {
-                    final ProjectJSONJava projectJSONJava = new ProjectJSONJava()
+                    final ProjectJSONJava projectJSONJava = ProjectJSONJava.create()
                         .setDependencies(Iterable.create(
                             new ProjectSignature("a", "b", "1")));
 
@@ -227,7 +412,7 @@ public interface ProjectJSONJavaTests
                     fileSystem.createRoot("/").await();
                     final QubFolder qubFolder = QubFolder.get(fileSystem.getFolder("/").await());
                     qubFolder.getProjectJSONFile("a", "b", "1").await()
-                        .setContentsAsString(new ProjectJSON()
+                        .setContentsAsString(ProjectJSON.create()
                             .toString());
 
                     test.assertEqual(
@@ -238,7 +423,7 @@ public interface ProjectJSONJavaTests
 
                 runner.test("with published dependency with unpublished dependency", (Test test) ->
                 {
-                    final ProjectJSONJava projectJSONJava = new ProjectJSONJava()
+                    final ProjectJSONJava projectJSONJava = ProjectJSONJava.create()
                         .setDependencies(Iterable.create(
                             new ProjectSignature("a", "b", "1")));
 
@@ -246,8 +431,8 @@ public interface ProjectJSONJavaTests
                     fileSystem.createRoot("/").await();
                     final QubFolder qubFolder = QubFolder.get(fileSystem.getFolder("/").await());
                     qubFolder.getProjectJSONFile("a", "b", "1").await()
-                        .setContentsAsString(new ProjectJSON()
-                            .setJava(new ProjectJSONJava()
+                        .setContentsAsString(ProjectJSON.create()
+                            .setJava(ProjectJSONJava.create()
                                 .setDependencies(Iterable.create(
                                     new ProjectSignature("c", "d", "2"))))
                             .toString());
@@ -261,7 +446,7 @@ public interface ProjectJSONJavaTests
 
                 runner.test("with published dependencies", (Test test) ->
                 {
-                    final ProjectJSONJava projectJSONJava = new ProjectJSONJava()
+                    final ProjectJSONJava projectJSONJava = ProjectJSONJava.create()
                         .setDependencies(Iterable.create(
                             new ProjectSignature("a", "b", "1"),
                             new ProjectSignature("x", "y", "z")));
@@ -270,8 +455,8 @@ public interface ProjectJSONJavaTests
                     fileSystem.createRoot("/").await();
                     final QubFolder qubFolder = QubFolder.get(fileSystem.getFolder("/").await());
                     qubFolder.getProjectJSONFile("a", "b", "1").await()
-                        .setContentsAsString(new ProjectJSON()
-                            .setJava(new ProjectJSONJava()
+                        .setContentsAsString(ProjectJSON.create()
+                            .setJava(ProjectJSONJava.create()
                                 .setDependencies(Iterable.create(
                                     new ProjectSignature("c", "d", "2"))))
                             .toString());
@@ -286,7 +471,7 @@ public interface ProjectJSONJavaTests
 
                 runner.test("with published dependencies under versions folder", (Test test) ->
                 {
-                    final ProjectJSONJava projectJSONJava = new ProjectJSONJava()
+                    final ProjectJSONJava projectJSONJava = ProjectJSONJava.create()
                         .setDependencies(Iterable.create(
                             new ProjectSignature("a", "b", "1"),
                             new ProjectSignature("x", "y", "z")));
@@ -295,8 +480,8 @@ public interface ProjectJSONJavaTests
                     fileSystem.createRoot("/").await();
                     final QubFolder qubFolder = QubFolder.get(fileSystem.getFolder("/").await());
                     qubFolder.getProjectJSONFile("a", "b", "1").await()
-                        .setContentsAsString(new ProjectJSON()
-                            .setJava(new ProjectJSONJava()
+                        .setContentsAsString(ProjectJSON.create()
+                            .setJava(ProjectJSONJava.create()
                                 .setDependencies(Iterable.create(
                                     new ProjectSignature("c", "d", "2"))))
                             .toString());
@@ -314,14 +499,14 @@ public interface ProjectJSONJavaTests
             {
                 runner.test("with null", (Test test) ->
                 {
-                    final ProjectJSONJava projectJSONJava = new ProjectJSONJava();
+                    final ProjectJSONJava projectJSONJava = ProjectJSONJava.create();
                     test.assertThrows(() -> projectJSONJava.getTransitiveDependencyPaths(null),
                         new PreConditionFailure("qubFolder cannot be null."));
                 });
 
                 runner.test("with unpublished dependency", (Test test) ->
                 {
-                    final ProjectJSONJava projectJSONJava = new ProjectJSONJava()
+                    final ProjectJSONJava projectJSONJava = ProjectJSONJava.create()
                         .setDependencies(Iterable.create(
                             new ProjectSignature("a", "b", "1")));
 
@@ -337,7 +522,7 @@ public interface ProjectJSONJavaTests
 
                 runner.test("with unpublished dependency with invalid folder characters", (Test test) ->
                 {
-                    final ProjectJSONJava projectJSONJava = new ProjectJSONJava()
+                    final ProjectJSONJava projectJSONJava = ProjectJSONJava.create()
                         .setDependencies(Iterable.create(
                             new ProjectSignature("a", "b?", "1")));
 
@@ -353,7 +538,7 @@ public interface ProjectJSONJavaTests
 
                 runner.test("with unpublished dependency with no project.json file", (Test test) ->
                 {
-                    final ProjectJSONJava projectJSONJava = new ProjectJSONJava()
+                    final ProjectJSONJava projectJSONJava = ProjectJSONJava.create()
                         .setDependencies(Iterable.create(
                             new ProjectSignature("a", "b", "1")));
 
@@ -370,7 +555,7 @@ public interface ProjectJSONJavaTests
 
                 runner.test("with published dependency with no dependencies", (Test test) ->
                 {
-                    final ProjectJSONJava projectJSONJava = new ProjectJSONJava()
+                    final ProjectJSONJava projectJSONJava = ProjectJSONJava.create()
                         .setDependencies(Iterable.create(
                             new ProjectSignature("a", "b", "1")));
 
@@ -378,7 +563,7 @@ public interface ProjectJSONJavaTests
                     fileSystem.createRoot("/").await();
                     final QubFolder qubFolder = QubFolder.get(fileSystem.getFolder("/").await());
                     qubFolder.getProjectJSONFile("a", "b", "1").await()
-                        .setContentsAsString(new ProjectJSON()
+                        .setContentsAsString(ProjectJSON.create()
                             .toString());
 
                     test.assertEqual(
@@ -389,7 +574,7 @@ public interface ProjectJSONJavaTests
 
                 runner.test("with published dependency with unpublished dependency", (Test test) ->
                 {
-                    final ProjectJSONJava projectJSONJava = new ProjectJSONJava()
+                    final ProjectJSONJava projectJSONJava = ProjectJSONJava.create()
                         .setDependencies(Iterable.create(
                             new ProjectSignature("a", "b", "1")));
 
@@ -397,8 +582,8 @@ public interface ProjectJSONJavaTests
                     fileSystem.createRoot("/").await();
                     final QubFolder qubFolder = QubFolder.get(fileSystem.getFolder("/").await());
                     qubFolder.getProjectJSONFile("a", "b", "1").await()
-                        .setContentsAsString(new ProjectJSON()
-                            .setJava(new ProjectJSONJava()
+                        .setContentsAsString(ProjectJSON.create()
+                            .setJava(ProjectJSONJava.create()
                                 .setDependencies(Iterable.create(
                                     new ProjectSignature("c", "d", "2"))))
                             .toString());
@@ -413,7 +598,7 @@ public interface ProjectJSONJavaTests
 
                 runner.test("with published dependencies", (Test test) ->
                 {
-                    final ProjectJSONJava projectJSONJava = new ProjectJSONJava()
+                    final ProjectJSONJava projectJSONJava = ProjectJSONJava.create()
                         .setDependencies(Iterable.create(
                             new ProjectSignature("a", "b", "1"),
                             new ProjectSignature("x", "y", "z")));
@@ -422,8 +607,8 @@ public interface ProjectJSONJavaTests
                     fileSystem.createRoot("/").await();
                     final QubFolder qubFolder = QubFolder.get(fileSystem.getFolder("/").await());
                     qubFolder.getProjectJSONFile("a", "b", "1").await()
-                        .setContentsAsString(new ProjectJSON()
-                            .setJava(new ProjectJSONJava()
+                        .setContentsAsString(ProjectJSON.create()
+                            .setJava(ProjectJSONJava.create()
                                 .setDependencies(Iterable.create(
                                     new ProjectSignature("c", "d", "2"))))
                             .toString());
@@ -439,7 +624,7 @@ public interface ProjectJSONJavaTests
 
                 runner.test("with dependencies that reference the same published dependency", (Test test) ->
                 {
-                    final ProjectJSONJava projectJSONJava = new ProjectJSONJava()
+                    final ProjectJSONJava projectJSONJava = ProjectJSONJava.create()
                         .setDependencies(Iterable.create(
                             new ProjectSignature("a", "b", "1"),
                             new ProjectSignature("x", "y", "z")));
@@ -448,14 +633,14 @@ public interface ProjectJSONJavaTests
                     fileSystem.createRoot("/").await();
                     final QubFolder qubFolder = QubFolder.get(fileSystem.getFolder("/").await());
                     qubFolder.getProjectJSONFile("a", "b", "1").await()
-                        .setContentsAsString(new ProjectJSON()
-                            .setJava(new ProjectJSONJava()
+                        .setContentsAsString(ProjectJSON.create()
+                            .setJava(ProjectJSONJava.create()
                                 .setDependencies(Iterable.create(
                                     new ProjectSignature("c", "d", "2"))))
                             .toString());
                     qubFolder.getProjectJSONFile("x", "y", "z").await()
-                        .setContentsAsString(new ProjectJSON()
-                            .setJava(new ProjectJSONJava()
+                        .setContentsAsString(ProjectJSON.create()
+                            .setJava(ProjectJSONJava.create()
                                 .setDependencies(Iterable.create(
                                     new ProjectSignature("c", "d", "2"))))
                             .toString());
@@ -471,7 +656,7 @@ public interface ProjectJSONJavaTests
 
                 runner.test("with published dependency with empty dependencies", (Test test) ->
                 {
-                    final ProjectJSONJava projectJSONJava = new ProjectJSONJava()
+                    final ProjectJSONJava projectJSONJava = ProjectJSONJava.create()
                         .setDependencies(Iterable.create(
                             new ProjectSignature("a", "b", "1")));
 
@@ -479,8 +664,8 @@ public interface ProjectJSONJavaTests
                     fileSystem.createRoot("/").await();
                     final QubFolder qubFolder = QubFolder.get(fileSystem.getFolder("/").await());
                     qubFolder.getProjectJSONFile("a", "b", "1").await()
-                        .setContentsAsString(new ProjectJSON()
-                            .setJava(new ProjectJSONJava()
+                        .setContentsAsString(ProjectJSON.create()
+                            .setJava(ProjectJSONJava.create()
                                 .setDependencies(Iterable.create()))
                             .toString());
 
@@ -492,7 +677,7 @@ public interface ProjectJSONJavaTests
 
                 runner.test("with published dependency with empty dependencies under versions folder", (Test test) ->
                 {
-                    final ProjectJSONJava projectJSONJava = new ProjectJSONJava()
+                    final ProjectJSONJava projectJSONJava = ProjectJSONJava.create()
                         .setDependencies(Iterable.create(
                             new ProjectSignature("a", "b", "1")));
 
@@ -500,8 +685,8 @@ public interface ProjectJSONJavaTests
                     fileSystem.createRoot("/").await();
                     final QubFolder qubFolder = QubFolder.get(fileSystem.getFolder("/").await());
                     qubFolder.getProjectJSONFile("a", "b", "1").await()
-                        .setContentsAsString(new ProjectJSON()
-                            .setJava(new ProjectJSONJava()
+                        .setContentsAsString(ProjectJSON.create()
+                            .setJava(ProjectJSONJava.create()
                                 .setDependencies(Iterable.create()))
                             .toString());
 
@@ -523,63 +708,63 @@ public interface ProjectJSONJavaTests
                 };
 
                 equalsTest.run(
-                    new ProjectJSONJava(),
+                    ProjectJSONJava.create(),
                     null,
                     false);
                 equalsTest.run(
-                    new ProjectJSONJava(),
+                    ProjectJSONJava.create(),
                     "hello",
                     false);
                 equalsTest.run(
-                    new ProjectJSONJava(),
-                    new ProjectJSONJava(),
+                    ProjectJSONJava.create(),
+                    ProjectJSONJava.create(),
                     true);
                 equalsTest.run(
-                    new ProjectJSONJava()
+                    ProjectJSONJava.create()
                         .setMainClass("a"),
-                    new ProjectJSONJava()
+                    ProjectJSONJava.create()
                         .setMainClass("b"),
                     false);
                 equalsTest.run(
-                    new ProjectJSONJava()
+                    ProjectJSONJava.create()
                         .setShortcutName("a"),
-                    new ProjectJSONJava()
+                    ProjectJSONJava.create()
                         .setShortcutName("b"),
                     false);
                 equalsTest.run(
-                    new ProjectJSONJava()
+                    ProjectJSONJava.create()
                         .setVersion("a"),
-                    new ProjectJSONJava()
+                    ProjectJSONJava.create()
                         .setVersion("b"),
                     false);
                 equalsTest.run(
-                    new ProjectJSONJava()
+                    ProjectJSONJava.create()
                         .setOutputFolder("a"),
-                    new ProjectJSONJava()
+                    ProjectJSONJava.create()
                         .setOutputFolder("b"),
                     false);
                 equalsTest.run(
-                    new ProjectJSONJava()
+                    ProjectJSONJava.create()
                         .setMaximumErrors(1),
-                    new ProjectJSONJava()
+                    ProjectJSONJava.create()
                         .setMaximumErrors(2),
                     false);
                 equalsTest.run(
-                    new ProjectJSONJava()
+                    ProjectJSONJava.create()
                         .setMaximumWarnings(1),
-                    new ProjectJSONJava()
+                    ProjectJSONJava.create()
                         .setMaximumWarnings(2),
                     false);
                 equalsTest.run(
-                    new ProjectJSONJava()
-                        .setSourceFilePatterns(Iterable.create(PathPattern.parse("a"))),
-                    new ProjectJSONJava()
-                        .setSourceFilePatterns(Iterable.create(PathPattern.parse("b"))),
+                    ProjectJSONJava.create()
+                        .setSourceFiles(Iterable.create(PathPattern.parse("a"))),
+                    ProjectJSONJava.create()
+                        .setSourceFiles(Iterable.create(PathPattern.parse("b"))),
                     false);
                 equalsTest.run(
-                    new ProjectJSONJava()
+                    ProjectJSONJava.create()
                         .setDependencies(Iterable.create(new ProjectSignature("a", "b", "c"))),
-                    new ProjectJSONJava()
+                    ProjectJSONJava.create()
                         .setDependencies(Iterable.create(new ProjectSignature("d", "e", "f"))),
                     false);
             });
@@ -595,59 +780,59 @@ public interface ProjectJSONJavaTests
                 };
 
                 equalsTest.run(
-                    new ProjectJSONJava(),
+                    ProjectJSONJava.create(),
                     null,
                     false);
                 equalsTest.run(
-                    new ProjectJSONJava(),
-                    new ProjectJSONJava(),
+                    ProjectJSONJava.create(),
+                    ProjectJSONJava.create(),
                     true);
                 equalsTest.run(
-                    new ProjectJSONJava()
+                    ProjectJSONJava.create()
                         .setMainClass("a"),
-                    new ProjectJSONJava()
+                    ProjectJSONJava.create()
                         .setMainClass("b"),
                     false);
                 equalsTest.run(
-                    new ProjectJSONJava()
+                    ProjectJSONJava.create()
                         .setShortcutName("a"),
-                    new ProjectJSONJava()
+                    ProjectJSONJava.create()
                         .setShortcutName("b"),
                     false);
                 equalsTest.run(
-                    new ProjectJSONJava()
+                    ProjectJSONJava.create()
                         .setVersion("a"),
-                    new ProjectJSONJava()
+                    ProjectJSONJava.create()
                         .setVersion("b"),
                     false);
                 equalsTest.run(
-                    new ProjectJSONJava()
+                    ProjectJSONJava.create()
                         .setOutputFolder("a"),
-                    new ProjectJSONJava()
+                    ProjectJSONJava.create()
                         .setOutputFolder("b"),
                     false);
                 equalsTest.run(
-                    new ProjectJSONJava()
+                    ProjectJSONJava.create()
                         .setMaximumErrors(1),
-                    new ProjectJSONJava()
+                    ProjectJSONJava.create()
                         .setMaximumErrors(2),
                     false);
                 equalsTest.run(
-                    new ProjectJSONJava()
+                    ProjectJSONJava.create()
                         .setMaximumWarnings(1),
-                    new ProjectJSONJava()
+                    ProjectJSONJava.create()
                         .setMaximumWarnings(2),
                     false);
                 equalsTest.run(
-                    new ProjectJSONJava()
-                        .setSourceFilePatterns(Iterable.create(PathPattern.parse("a"))),
-                    new ProjectJSONJava()
-                        .setSourceFilePatterns(Iterable.create(PathPattern.parse("b"))),
+                    ProjectJSONJava.create()
+                        .setSourceFiles(Iterable.create(PathPattern.parse("a"))),
+                    ProjectJSONJava.create()
+                        .setSourceFiles(Iterable.create(PathPattern.parse("b"))),
                     false);
                 equalsTest.run(
-                    new ProjectJSONJava()
+                    ProjectJSONJava.create()
                         .setDependencies(Iterable.create(new ProjectSignature("a", "b", "c"))),
-                    new ProjectJSONJava()
+                    ProjectJSONJava.create()
                         .setDependencies(Iterable.create(new ProjectSignature("d", "e", "f"))),
                     false);
             });
@@ -662,16 +847,47 @@ public interface ProjectJSONJavaTests
                     });
                 };
 
-                toStringTest.run(new ProjectJSONJava(), "{}");
-                toStringTest.run(new ProjectJSONJava().setMainClass("a"), "{\"mainClass\":\"a\"}");
-                toStringTest.run(new ProjectJSONJava().setShortcutName("b"), "{\"shortcutName\":\"b\"}");
-                toStringTest.run(new ProjectJSONJava().setVersion("c"), "{\"version\":\"c\"}");
-                toStringTest.run(new ProjectJSONJava().setMaximumErrors(20), "{\"maximumErrors\":20}");
-                toStringTest.run(new ProjectJSONJava().setMaximumWarnings(30), "{\"maximumWarnings\":30}");
-                toStringTest.run(new ProjectJSONJava().setSourceFilePatterns(Iterable.create()), "{}");
-                toStringTest.run(new ProjectJSONJava().setSourceFilePatterns(Iterable.create(PathPattern.parse("*.java"))), "{\"sourceFiles\":[\"*.java\"]}");
-                toStringTest.run(new ProjectJSONJava().setDependencies(Iterable.create()), "{}");
-                toStringTest.run(new ProjectJSONJava().setDependencies(Iterable.create(new ProjectSignature("a", "b", "c"))), "{\"dependencies\":[{\"publisher\":\"a\",\"project\":\"b\",\"version\":\"c\"}]}");
+                toStringTest.run(
+                    ProjectJSONJava.create(),
+                    "{}");
+                toStringTest.run(
+                    ProjectJSONJava.create()
+                        .setMainClass("a"),
+                    "{\"mainClass\":\"a\"}");
+                toStringTest.run(
+                    ProjectJSONJava.create()
+                        .setShortcutName("b"),
+                    "{\"shortcutName\":\"b\"}");
+                toStringTest.run(
+                    ProjectJSONJava.create()
+                        .setVersion("c"),
+                    "{\"version\":\"c\"}");
+                toStringTest.run(
+                    ProjectJSONJava.create()
+                        .setMaximumErrors(20),
+                    "{\"maximumErrors\":20}");
+                toStringTest.run(
+                    ProjectJSONJava.create()
+                        .setMaximumWarnings(30),
+                    "{\"maximumWarnings\":30}");
+                toStringTest.run(
+                    ProjectJSONJava.create()
+                        .setSourceFiles(Iterable.create()),
+                    "{\"sourceFiles\":[]}");
+                toStringTest.run(
+                    ProjectJSONJava.create()
+                        .setSourceFiles(Iterable.create(
+                            PathPattern.parse("*.java"))),
+                    "{\"sourceFiles\":[\"*.java\"]}");
+                toStringTest.run(
+                    ProjectJSONJava.create()
+                        .setDependencies(Iterable.create()),
+                    "{\"dependencies\":[]}");
+                toStringTest.run(
+                    ProjectJSONJava.create()
+                        .setDependencies(Iterable.create(
+                            new ProjectSignature("a", "b", "c"))),
+                    "{\"dependencies\":[{\"publisher\":\"a\",\"project\":\"b\",\"version\":\"c\"}]}");
             });
 
             runner.testGroup("toString(JSONFormat)", () ->
@@ -684,72 +900,243 @@ public interface ProjectJSONJavaTests
                     });
                 };
 
-                toStringTest.run(new ProjectJSONJava(), JSONFormat.consise, "{}");
-                toStringTest.run(new ProjectJSONJava().setMainClass("a"), JSONFormat.consise, "{\"mainClass\":\"a\"}");
-                toStringTest.run(new ProjectJSONJava().setShortcutName("b"), JSONFormat.consise, "{\"shortcutName\":\"b\"}");
-                toStringTest.run(new ProjectJSONJava().setVersion("c"), JSONFormat.consise, "{\"version\":\"c\"}");
-                toStringTest.run(new ProjectJSONJava().setMaximumErrors(20), JSONFormat.consise, "{\"maximumErrors\":20}");
-                toStringTest.run(new ProjectJSONJava().setMaximumWarnings(30), JSONFormat.consise, "{\"maximumWarnings\":30}");
-                toStringTest.run(new ProjectJSONJava().setSourceFilePatterns(Iterable.create()), JSONFormat.consise, "{}");
-                toStringTest.run(new ProjectJSONJava().setSourceFilePatterns(Iterable.create(PathPattern.parse("*.java"))), JSONFormat.consise, "{\"sourceFiles\":[\"*.java\"]}");
-                toStringTest.run(new ProjectJSONJava().setDependencies(Iterable.create()), JSONFormat.consise, "{}");
-                toStringTest.run(new ProjectJSONJava().setDependencies(Iterable.create(new ProjectSignature("a", "b", "c"))), JSONFormat.consise, "{\"dependencies\":[{\"publisher\":\"a\",\"project\":\"b\",\"version\":\"c\"}]}");
+                toStringTest.run(
+                    ProjectJSONJava.create(),
+                    JSONFormat.consise,
+                    "{}");
+                toStringTest.run(
+                    ProjectJSONJava.create()
+                        .setMainClass("a"),
+                    JSONFormat.consise,
+                    "{\"mainClass\":\"a\"}");
+                toStringTest.run(
+                    ProjectJSONJava.create()
+                        .setShortcutName("b"),
+                    JSONFormat.consise,
+                    "{\"shortcutName\":\"b\"}");
+                toStringTest.run(
+                    ProjectJSONJava.create()
+                        .setVersion("c"),
+                    JSONFormat.consise,
+                    "{\"version\":\"c\"}");
+                toStringTest.run(
+                    ProjectJSONJava.create()
+                        .setMaximumErrors(20),
+                    JSONFormat.consise,
+                    "{\"maximumErrors\":20}");
+                toStringTest.run(
+                    ProjectJSONJava.create()
+                        .setMaximumWarnings(30),
+                    JSONFormat.consise,
+                    "{\"maximumWarnings\":30}");
+                toStringTest.run(
+                    ProjectJSONJava.create()
+                        .setSourceFiles(Iterable.create()),
+                    JSONFormat.consise,
+                    "{\"sourceFiles\":[]}");
+                toStringTest.run(
+                    ProjectJSONJava.create()
+                        .setSourceFiles(Iterable.create(
+                            PathPattern.parse("*.java"))),
+                    JSONFormat.consise,
+                    "{\"sourceFiles\":[\"*.java\"]}");
+                toStringTest.run(
+                    ProjectJSONJava.create()
+                        .setDependencies(Iterable.create()),
+                    JSONFormat.consise,
+                    "{\"dependencies\":[]}");
+                toStringTest.run(
+                    ProjectJSONJava.create()
+                        .setDependencies(Iterable.create(
+                            new ProjectSignature("a", "b", "c"))),
+                    JSONFormat.consise,
+                    "{\"dependencies\":[{\"publisher\":\"a\",\"project\":\"b\",\"version\":\"c\"}]}");
 
-                toStringTest.run(new ProjectJSONJava(), JSONFormat.pretty, "{}");
-                toStringTest.run(new ProjectJSONJava().setMainClass("a"), JSONFormat.pretty, "{\n  \"mainClass\": \"a\"\n}");
-                toStringTest.run(new ProjectJSONJava().setShortcutName("b"), JSONFormat.pretty, "{\n  \"shortcutName\": \"b\"\n}");
-                toStringTest.run(new ProjectJSONJava().setVersion("c"), JSONFormat.pretty, "{\n  \"version\": \"c\"\n}");
-                toStringTest.run(new ProjectJSONJava().setMaximumErrors(20), JSONFormat.pretty, "{\n  \"maximumErrors\": 20\n}");
-                toStringTest.run(new ProjectJSONJava().setMaximumWarnings(30), JSONFormat.pretty, "{\n  \"maximumWarnings\": 30\n}");
-                toStringTest.run(new ProjectJSONJava().setSourceFilePatterns(Iterable.create()), JSONFormat.pretty, "{}");
-                toStringTest.run(new ProjectJSONJava().setSourceFilePatterns(Iterable.create(PathPattern.parse("*.java"))), JSONFormat.pretty, "{\n  \"sourceFiles\": [\n    \"*.java\"\n  ]\n}");
-                toStringTest.run(new ProjectJSONJava().setDependencies(Iterable.create()), JSONFormat.pretty, "{}");
-                toStringTest.run(new ProjectJSONJava().setDependencies(Iterable.create(new ProjectSignature("a", "b", "c"))), JSONFormat.pretty, "{\n  \"dependencies\": [\n    {\n      \"publisher\": \"a\",\n      \"project\": \"b\",\n      \"version\": \"c\"\n    }\n  ]\n}");
+                toStringTest.run(
+                    ProjectJSONJava.create(),
+                    JSONFormat.pretty,
+                    "{}");
+                toStringTest.run(
+                    ProjectJSONJava.create()
+                        .setMainClass("a"),
+                    JSONFormat.pretty,
+                    "{\n  \"mainClass\": \"a\"\n}");
+                toStringTest.run(
+                    ProjectJSONJava.create()
+                        .setShortcutName("b"),
+                    JSONFormat.pretty,
+                    "{\n  \"shortcutName\": \"b\"\n}");
+                toStringTest.run(
+                    ProjectJSONJava.create()
+                        .setVersion("c"),
+                    JSONFormat.pretty,
+                    "{\n  \"version\": \"c\"\n}");
+                toStringTest.run(
+                    ProjectJSONJava.create()
+                        .setMaximumErrors(20),
+                    JSONFormat.pretty,
+                    "{\n  \"maximumErrors\": 20\n}");
+                toStringTest.run(
+                    ProjectJSONJava.create()
+                        .setMaximumWarnings(30),
+                    JSONFormat.pretty,
+                    "{\n  \"maximumWarnings\": 30\n}");
+                toStringTest.run(
+                    ProjectJSONJava.create()
+                        .setSourceFiles(Iterable.create()),
+                    JSONFormat.pretty,
+                    "{\n  \"sourceFiles\": []\n}");
+                toStringTest.run(
+                    ProjectJSONJava.create()
+                        .setSourceFiles(Iterable.create(
+                            PathPattern.parse("*.java"))),
+                    JSONFormat.pretty,
+                    "{\n  \"sourceFiles\": [\n    \"*.java\"\n  ]\n}");
+                toStringTest.run(
+                    ProjectJSONJava.create()
+                        .setDependencies(Iterable.create()),
+                    JSONFormat.pretty,
+                    "{\n  \"dependencies\": []\n}");
+                toStringTest.run(
+                    ProjectJSONJava.create()
+                        .setDependencies(Iterable.create(
+                            new ProjectSignature("a", "b", "c"))),
+                    JSONFormat.pretty,
+                    "{\n  \"dependencies\": [\n    {\n      \"publisher\": \"a\",\n      \"project\": \"b\",\n      \"version\": \"c\"\n    }\n  ]\n}");
             });
 
-            runner.testGroup("parse(JSONObject)", () ->
+            runner.testGroup("create(JSONObject)", () ->
             {
                 runner.test("with null", (Test test) ->
                 {
-                    test.assertThrows(() -> ProjectJSONJava.parse(null),
-                        new PreConditionFailure("javaObject cannot be null."));
+                    test.assertThrows(() -> ProjectJSONJava.create(null),
+                        new PreConditionFailure("jsonObject cannot be null."));
                 });
 
                 final Action2<String,ProjectJSONJava> parseTest = (String jsonString, ProjectJSONJava expected) ->
                 {
                     runner.test("with " + Strings.escapeAndQuote(jsonString), (Test test) ->
                     {
-                        test.assertEqual(expected, ProjectJSONJava.parse(JSON.parseObject(jsonString).await()).await());
+                        test.assertEqual(expected, ProjectJSONJava.create(JSON.parseObject(jsonString).await()));
                     });
                 };
 
-                parseTest.run("{}", new ProjectJSONJava());
-                parseTest.run("{\"mainClass\":\"a\"}", new ProjectJSONJava().setMainClass("a"));
-                parseTest.run("{\"mainClass\":false}", new ProjectJSONJava());
-                parseTest.run("{\"shortcutName\":\"b\"}", new ProjectJSONJava().setShortcutName("b"));
-                parseTest.run("{\"shortcutName\":50}", new ProjectJSONJava());
-                parseTest.run("{\"version\":\"c\"}", new ProjectJSONJava().setVersion("c"));
-                parseTest.run("{\"version\":200}", new ProjectJSONJava().setVersion("200"));
-                parseTest.run("{\"version\":200.1}", new ProjectJSONJava().setVersion("200.1"));
-                parseTest.run("{\"version\":null}", new ProjectJSONJava());
-                parseTest.run("{\"maximumErrors\":20}", new ProjectJSONJava().setMaximumErrors(20));
-                parseTest.run("{\"maximumErrors\":-1}", new ProjectJSONJava().setMaximumErrors(-1));
-                parseTest.run("{\"maximumErrors\":\"hello\"}", new ProjectJSONJava());
-                parseTest.run("{\"maximumWarnings\":30}", new ProjectJSONJava().setMaximumWarnings(30));
-                parseTest.run("{\"maximumWarnings\":-2}", new ProjectJSONJava().setMaximumWarnings(-2));
-                parseTest.run("{\"maximumWarnings\":null}", new ProjectJSONJava());
-                parseTest.run("{\"sourceFiles\":[\"*.java\"]}", new ProjectJSONJava().setSourceFilePatterns(Iterable.create(PathPattern.parse("*.java"))));
-                parseTest.run("{\"sourceFiles\":[\"\"]}", new ProjectJSONJava().setSourceFilePatterns(Iterable.create()));
-                parseTest.run("{\"sourceFiles\":[null]}", new ProjectJSONJava().setSourceFilePatterns(Iterable.create()));
-                parseTest.run("{\"sourceFiles\":[\"*.java\",{}]}", new ProjectJSONJava().setSourceFilePatterns(Iterable.create(PathPattern.parse("*.java"))));
-                parseTest.run("{\"sourceFiles\":\"*.java\"}", new ProjectJSONJava().setSourceFilePatterns(Iterable.create(PathPattern.parse("*.java"))));
-                parseTest.run("{\"sourceFiles\":\"\"}", new ProjectJSONJava());
-                parseTest.run("{\"sourceFiles\":null}", new ProjectJSONJava());
-                parseTest.run("{\"dependencies\":[{\"publisher\":\"a\",\"project\":\"b\",\"version\":\"c\"}]}", new ProjectJSONJava().setDependencies(Iterable.create(new ProjectSignature("a", "b", "c"))));
-                parseTest.run("{\"dependencies\":[\"a/b@c\"]}", new ProjectJSONJava().setDependencies(Iterable.create(new ProjectSignature("a", "b", "c"))));
-                parseTest.run("{\"dependencies\":[\"a/b@c\",{\"publisher\":\"d\",\"project\":\"e\",\"version\":\"f\"}]}", new ProjectJSONJava().setDependencies(Iterable.create(new ProjectSignature("a", "b", "c"), new ProjectSignature("d", "e", "f"))));
-                parseTest.run("{\"dependencies\":[500]}", new ProjectJSONJava().setDependencies(Iterable.create()));
-                parseTest.run("{\"dependencies\":false}", new ProjectJSONJava());
+                parseTest.run(
+                    "{}",
+                    ProjectJSONJava.create());
+                parseTest.run(
+                    "{\"mainClass\":\"a\"}",
+                    ProjectJSONJava.create()
+                        .setMainClass("a"));
+                parseTest.run(
+                    "{\"mainClass\":false}",
+                    ProjectJSONJava.create(JSONObject.create()
+                        .setBoolean("mainClass", false)));
+                parseTest.run(
+                    "{\"shortcutName\":\"b\"}",
+                    ProjectJSONJava.create()
+                        .setShortcutName("b"));
+                parseTest.run(
+                    "{\"shortcutName\":50}",
+                    ProjectJSONJava.create(JSONObject.create()
+                        .setNumber("shortcutName", 50)));
+                parseTest.run(
+                    "{\"version\":\"c\"}",
+                    ProjectJSONJava.create()
+                        .setVersion("c"));
+                parseTest.run(
+                    "{\"version\":200}",
+                    ProjectJSONJava.create(JSONObject.create()
+                        .setNumber("version", 200)));
+                parseTest.run(
+                    "{\"version\":200.1}",
+                    ProjectJSONJava.create(JSONObject.create()
+                        .setNumber("version", 200.1)));
+                parseTest.run(
+                    "{\"version\":null}",
+                    ProjectJSONJava.create(JSONObject.create()
+                        .setNull("version")));
+                parseTest.run(
+                    "{\"maximumErrors\":20}",
+                    ProjectJSONJava.create()
+                        .setMaximumErrors(20));
+                parseTest.run(
+                    "{\"maximumErrors\":-1}",
+                    ProjectJSONJava.create()
+                        .setMaximumErrors(-1));
+                parseTest.run(
+                    "{\"maximumErrors\":\"hello\"}",
+                    ProjectJSONJava.create(JSONObject.create()
+                        .setString("maximumErrors", "hello")));
+                parseTest.run(
+                    "{\"maximumWarnings\":30}",
+                    ProjectJSONJava.create()
+                        .setMaximumWarnings(30));
+                parseTest.run(
+                    "{\"maximumWarnings\":-2}",
+                    ProjectJSONJava.create()
+                        .setMaximumWarnings(-2));
+                parseTest.run(
+                    "{\"maximumWarnings\":null}",
+                    ProjectJSONJava.create(JSONObject.create()
+                        .setNull("maximumWarnings")));
+                parseTest.run(
+                    "{\"sourceFiles\":[\"*.java\"]}",
+                    ProjectJSONJava.create()
+                        .setSourceFiles(Iterable.create(PathPattern.parse("*.java"))));
+                parseTest.run(
+                    "{\"sourceFiles\":[\"\"]}",
+                    ProjectJSONJava.create(JSONObject.create()
+                        .setArray("sourceFiles", Iterable.create(JSONString.get("")))));
+                parseTest.run(
+                    "{\"sourceFiles\":[null]}",
+                    ProjectJSONJava.create(JSONObject.create()
+                        .setArray("sourceFiles", Iterable.create(JSONNull.segment))));
+                parseTest.run(
+                    "{\"sourceFiles\":[\"*.java\",{}]}",
+                    ProjectJSONJava.create(JSONObject.create()
+                        .setArray("sourceFiles", Iterable.create(
+                            JSONString.get("*.java"),
+                            JSONObject.create()))));
+                parseTest.run(
+                    "{\"sourceFiles\":\"*.java\"}",
+                    ProjectJSONJava.create().setSourceFiles(PathPattern.parse("*.java")));
+                parseTest.run(
+                    "{\"sourceFiles\":\"\"}",
+                    ProjectJSONJava.create(JSONObject.create()
+                        .setString("sourceFiles", "")));
+                parseTest.run(
+                    "{\"sourceFiles\":null}",
+                    ProjectJSONJava.create(JSONObject.create()
+                        .setNull("sourceFiles")));
+                parseTest.run(
+                    "{\"dependencies\":[{\"publisher\":\"a\",\"project\":\"b\",\"version\":\"c\"}]}",
+                    ProjectJSONJava.create()
+                        .setDependencies(Iterable.create(
+                            new ProjectSignature("a", "b", "c"))));
+                parseTest.run(
+                    "{\"dependencies\":[\"a/b@c\"]}",
+                    ProjectJSONJava.create(JSONObject.create()
+                        .setArray("dependencies", Iterable.create(
+                            JSONString.get("a/b@c")))));
+                parseTest.run(
+                    "{\"dependencies\":[\"a/b@c\",{\"publisher\":\"d\",\"project\":\"e\",\"version\":\"f\"}]}",
+                    ProjectJSONJava.create(JSONObject.create()
+                        .setArray("dependencies", Iterable.create(
+                            JSONString.get("a/b@c"),
+                            JSONObject.create()
+                                .setString("publisher", "d")
+                                .setString("project", "e")
+                                .setString("version", "f")))));
+                parseTest.run(
+                    "{\"dependencies\":[500]}",
+                    ProjectJSONJava.create(JSONObject.create()
+                        .setArray("dependencies", Iterable.create(
+                            JSONNumber.get(500)))));
+                parseTest.run(
+                    "{\"dependencies\":false}",
+                    ProjectJSONJava.create(JSONObject.create()
+                        .setBoolean("dependencies", false)));
             });
         });
     }

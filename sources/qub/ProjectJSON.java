@@ -7,10 +7,53 @@ public class ProjectJSON
     private static final String versionPropertyName = "version";
     private static final String javaPropertyName = "java";
 
-    private String publisher;
-    private String project;
-    private String version;
-    private ProjectJSONJava java;
+    private final JSONObject jsonObject;
+
+    private ProjectJSON(JSONObject jsonObject)
+    {
+        PreCondition.assertNotNull(jsonObject, "jsonObject");
+
+        this.jsonObject = jsonObject;
+    }
+
+    /**
+     * Create a ProjectJSON object from the provided JSON object.
+     * @param jsonObject The JSON object to wrap.
+     * @return The ProjectJSON object that wraps the provided JSON object.
+     */
+    public static ProjectJSON create(JSONObject jsonObject)
+    {
+        PreCondition.assertNotNull(jsonObject, "rootObject");
+
+        return new ProjectJSON(jsonObject);
+    }
+
+    /**
+     * Create a ProjectJSON object around an empty JSON object.
+     * @return The ProjectJSON object that wraps an empty JSON object.
+     */
+    public static ProjectJSON create()
+    {
+        return ProjectJSON.create(JSONObject.create());
+    }
+
+    private String getString(String propertyName)
+    {
+        PreCondition.assertNotNullAndNotEmpty(propertyName, "propertyName");
+
+        return this.jsonObject.getString(propertyName)
+            .catchError()
+            .await();
+    }
+
+    private ProjectJSON setString(String propertyName, String propertyValue)
+    {
+        PreCondition.assertNotNullAndNotEmpty(propertyName, "propertyName");
+        PreCondition.assertNotNullAndNotEmpty(propertyValue, "propertyValue");
+
+        this.jsonObject.setString(propertyName, propertyValue);
+        return this;
+    }
 
     /**
      * Get the publisher.
@@ -18,7 +61,7 @@ public class ProjectJSON
      */
     public String getPublisher()
     {
-        return this.publisher;
+        return this.getString(ProjectJSON.publisherPropertyName);
     }
 
     /**
@@ -27,8 +70,9 @@ public class ProjectJSON
      */
     public ProjectJSON setPublisher(String publisher)
     {
-        this.publisher = publisher;
-        return this;
+        PreCondition.assertNotNullAndNotEmpty(publisher, "publisher");
+
+        return this.setString(ProjectJSON.publisherPropertyName, publisher);
     }
 
     /**
@@ -37,7 +81,7 @@ public class ProjectJSON
      */
     public String getProject()
     {
-        return this.project;
+        return this.getString(ProjectJSON.projectPropertyName);
     }
 
     /**
@@ -46,8 +90,9 @@ public class ProjectJSON
      */
     public ProjectJSON setProject(String project)
     {
-        this.project = project;
-        return this;
+        PreCondition.assertNotNullAndNotEmpty(project, "project");
+
+        return this.setString(ProjectJSON.projectPropertyName, project);
     }
 
     /**
@@ -56,7 +101,7 @@ public class ProjectJSON
      */
     public String getVersion()
     {
-        return this.version;
+        return this.getString(ProjectJSON.versionPropertyName);
     }
 
     /**
@@ -65,8 +110,9 @@ public class ProjectJSON
      */
     public ProjectJSON setVersion(String version)
     {
-        this.version = version;
-        return this;
+        PreCondition.assertNotNullAndNotEmpty(version, "version");
+
+        return this.setString(ProjectJSON.versionPropertyName, version);
     }
 
     /**
@@ -75,7 +121,9 @@ public class ProjectJSON
      */
     public ProjectJSON setJava(ProjectJSONJava java)
     {
-        this.java = java;
+        PreCondition.assertNotNull(java, "java");
+
+        this.jsonObject.setObject(ProjectJSON.javaPropertyName, java.toJson());
         return this;
     }
 
@@ -85,7 +133,8 @@ public class ProjectJSON
      */
     public ProjectJSONJava getJava()
     {
-        return this.java;
+        final JSONObject javaJsonObject = this.jsonObject.getObject(ProjectJSON.javaPropertyName).catchError().await();
+        return javaJsonObject == null ? null : ProjectJSONJava.create(javaJsonObject);
     }
 
     @Override
@@ -97,10 +146,7 @@ public class ProjectJSON
     public boolean equals(ProjectJSON rhs)
     {
         return rhs != null &&
-            Comparer.equal(this.publisher, rhs.publisher) &&
-            Comparer.equal(this.project, rhs.project) &&
-            Comparer.equal(this.version, rhs.version) &&
-            Comparer.equal(this.java, rhs.java);
+            this.jsonObject.equals(rhs.jsonObject);
     }
 
     @Override
@@ -118,28 +164,7 @@ public class ProjectJSON
 
     public JSONObject toJson()
     {
-        final JSONObject result = JSONObject.create();
-
-        if (!Strings.isNullOrEmpty(this.publisher))
-        {
-            result.setString(ProjectJSON.publisherPropertyName, this.publisher);
-        }
-        if (!Strings.isNullOrEmpty(this.project))
-        {
-            result.setString(ProjectJSON.projectPropertyName, this.project);
-        }
-        if (!Strings.isNullOrEmpty(this.version))
-        {
-            result.setString(ProjectJSON.versionPropertyName, this.version);
-        }
-        if (this.java != null)
-        {
-            result.set(ProjectJSON.javaPropertyName, this.java.toJson());
-        }
-
-        PostCondition.assertNotNull(result, "result");
-
-        return result;
+        return this.jsonObject;
     }
 
     /**
@@ -190,40 +215,6 @@ public class ProjectJSON
         PreCondition.assertNotNull(characters, "characters");
 
         return JSON.parseObject(characters)
-            .then((JSONObject rootObject) -> ProjectJSON.parse(rootObject).await());
-    }
-
-    /**
-     * Parse a ProjectJSON object from the provided JSONObject.
-     * @param rootObject The rootObject to parse.
-     * @return The result of attempting to parse a JSON object.
-     */
-    public static Result<ProjectJSON> parse(JSONObject rootObject)
-    {
-        PreCondition.assertNotNull(rootObject, "rootObject");
-
-        return Result.create(() ->
-        {
-            ProjectJSON projectJson = new ProjectJSON();
-
-            rootObject.getString(ProjectJSON.publisherPropertyName)
-                .then(projectJson::setPublisher)
-                .catchError()
-                .await();
-            rootObject.getString(ProjectJSON.projectPropertyName)
-                .then(projectJson::setProject)
-                .catchError()
-                .await();
-            rootObject.getString(ProjectJSON.versionPropertyName)
-                .then(projectJson::setVersion)
-                .catchError()
-                .await();
-            rootObject.getObject(ProjectJSON.javaPropertyName)
-                .then((JSONObject javaObject) -> projectJson.setJava(ProjectJSONJava.parse(javaObject).await()))
-                .catchError()
-                .await();
-
-            return projectJson;
-        });
+            .then((JSONObject rootObject) -> ProjectJSON.create(rootObject));
     }
 }

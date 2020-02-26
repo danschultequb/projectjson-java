@@ -1,7 +1,5 @@
 package qub;
 
-import java.util.Objects;
-
 public class ProjectJSONJava
 {
     public final static String mainClassPropertyName = "mainClass";
@@ -17,14 +15,71 @@ public class ProjectJSONJava
     public final static String projectSignatureProjectPropertyName = "project";
     public final static String projectSignatureVersionPropertyName = "version";
 
-    private String mainClass;
-    private String shortcutName;
-    private String version;
-    private String outputFolder;
-    private Integer maximumErrors;
-    private Integer maximumWarnings;
-    private Iterable<PathPattern> sourceFilePatterns;
-    private Iterable<ProjectSignature> dependencies;
+    private final JSONObject jsonObject;
+
+    private ProjectJSONJava(JSONObject jsonObject)
+    {
+        PreCondition.assertNotNull(jsonObject, "jsonObject");
+
+        this.jsonObject = jsonObject;
+    }
+
+    /**
+     * Create a ProjectJSONJava object from the provided JSON object.
+     * @param jsonObject The JSON object to wrap.
+     * @return The ProjectJSONJava object that wraps the provided JSON object.
+     */
+    public static ProjectJSONJava create(JSONObject jsonObject)
+    {
+        PreCondition.assertNotNull(jsonObject, "jsonObject");
+
+        return new ProjectJSONJava(jsonObject);
+    }
+
+    /**
+     * Create a ProjectJSONJava object around an empty JSON object.
+     * @return The ProjectJSONJava object that wraps an empty JSON object.
+     */
+    public static ProjectJSONJava create()
+    {
+        return ProjectJSONJava.create(JSONObject.create());
+    }
+
+    private String getString(String propertyName)
+    {
+        PreCondition.assertNotNullAndNotEmpty(propertyName, "propertyName");
+
+        return this.jsonObject.getString(propertyName)
+            .catchError()
+            .await();
+    }
+
+    private ProjectJSONJava setString(String propertyName, String propertyValue)
+    {
+        PreCondition.assertNotNullAndNotEmpty(propertyName, "propertyName");
+        PreCondition.assertNotNullAndNotEmpty(propertyValue, "propertyValue");
+
+        this.jsonObject.setString(propertyName, propertyValue);
+        return this;
+    }
+
+    private Integer getInteger(String propertyName)
+    {
+        PreCondition.assertNotNullAndNotEmpty(propertyName, "propertyName");
+
+        final Double number = this.jsonObject.getNumber(propertyName)
+            .catchError()
+            .await();
+        return number == null ? null : number.intValue();
+    }
+
+    private ProjectJSONJava setInteger(String propertyName, int propertyValue)
+    {
+        PreCondition.assertNotNullAndNotEmpty(propertyName, "propertyName");
+
+        this.jsonObject.setNumber(propertyName, propertyValue);
+        return this;
+    }
 
     /**
      * Get the main class.
@@ -32,7 +87,7 @@ public class ProjectJSONJava
      */
     public String getMainClass()
     {
-        return mainClass;
+        return this.getString(ProjectJSONJava.mainClassPropertyName);
     }
 
     /**
@@ -41,8 +96,9 @@ public class ProjectJSONJava
      */
     public ProjectJSONJava setMainClass(String mainClass)
     {
-        this.mainClass = mainClass;
-        return this;
+        PreCondition.assertNotNullAndNotEmpty(mainClass, "mainClass");
+
+        return this.setString(ProjectJSONJava.mainClassPropertyName, mainClass);
     }
 
     /**
@@ -51,7 +107,7 @@ public class ProjectJSONJava
      */
     public String getShortcutName()
     {
-        return shortcutName;
+        return this.getString(ProjectJSONJava.shortcutNamePropertyName);
     }
 
     /**
@@ -60,8 +116,9 @@ public class ProjectJSONJava
      */
     public ProjectJSONJava setShortcutName(String shortcutName)
     {
-        this.shortcutName = shortcutName;
-        return this;
+        PreCondition.assertNotNullAndNotEmpty(shortcutName, "shortcutName");
+
+        return this.setString(ProjectJSONJava.shortcutNamePropertyName, shortcutName);
     }
 
     /**
@@ -70,7 +127,7 @@ public class ProjectJSONJava
      */
     public String getVersion()
     {
-        return version;
+        return this.getString(ProjectJSONJava.versionPropertyName);
     }
 
     /**
@@ -79,8 +136,9 @@ public class ProjectJSONJava
      */
     public ProjectJSONJava setVersion(String version)
     {
-        this.version = version;
-        return this;
+        PreCondition.assertNotNullAndNotEmpty(version, "version");
+
+        return this.setString(ProjectJSONJava.versionPropertyName, version);
     }
 
     /**
@@ -89,7 +147,7 @@ public class ProjectJSONJava
      */
     public String getOutputFolder()
     {
-        return outputFolder;
+        return this.getString(ProjectJSONJava.outputFolderPropertyName);
     }
 
     /**
@@ -98,13 +156,9 @@ public class ProjectJSONJava
      */
     public ProjectJSONJava setOutputFolder(String outputFolder)
     {
-        this.outputFolder = outputFolder;
-        return this;
-    }
+        PreCondition.assertNotNullAndNotEmpty(outputFolder, "outputFolder");
 
-    public Iterable<PathPattern> getSourceFilePatterns()
-    {
-        return sourceFilePatterns;
+        return this.setString(ProjectJSONJava.outputFolderPropertyName, outputFolder);
     }
 
     /**
@@ -114,10 +168,9 @@ public class ProjectJSONJava
      *                      halting compilation.
      * @return This object for method chaining.
      */
-    public ProjectJSONJava setMaximumErrors(Integer maximumErrors)
+    public ProjectJSONJava setMaximumErrors(int maximumErrors)
     {
-        this.maximumErrors = maximumErrors;
-        return this;
+        return this.setInteger(ProjectJSONJava.maximumErrorsPropertyName, maximumErrors);
     }
 
     /**
@@ -128,7 +181,7 @@ public class ProjectJSONJava
      */
     public Integer getMaximumErrors()
     {
-        return maximumErrors;
+        return this.getInteger(ProjectJSONJava.maximumErrorsPropertyName);
     }
 
     /**
@@ -137,10 +190,9 @@ public class ProjectJSONJava
      * @param maximumWarnings The maximum number of warnings that the compiler should report.
      * @return This object for method chaining.
      */
-    public ProjectJSONJava setMaximumWarnings(Integer maximumWarnings)
+    public ProjectJSONJava setMaximumWarnings(int maximumWarnings)
     {
-        this.maximumWarnings = maximumWarnings;
-        return this;
+        return this.setInteger(ProjectJSONJava.maximumWarningsPropertyName, maximumWarnings);
     }
 
     /**
@@ -150,12 +202,53 @@ public class ProjectJSONJava
      */
     public Integer getMaximumWarnings()
     {
-        return maximumWarnings;
+        return this.getInteger(ProjectJSONJava.maximumWarningsPropertyName);
     }
 
-    public ProjectJSONJava setSourceFilePatterns(Iterable<PathPattern> sourceFilePatterns)
+    public Iterable<PathPattern> getSourceFiles()
     {
-        this.sourceFilePatterns = sourceFilePatterns;
+        final List<PathPattern> result = List.create();
+
+        this.jsonObject.getString(ProjectJSONJava.sourceFilesPropertyName)
+                .then((String sourceFilesPattern) ->
+                {
+                    if (!Strings.isNullOrEmpty(sourceFilesPattern))
+                    {
+                        result.add(PathPattern.parse(sourceFilesPattern));
+                    }
+                })
+                .catchError(WrongTypeException.class, () ->
+                {
+                    this.jsonObject.getArray(ProjectJSONJava.sourceFilesPropertyName)
+                        .then((JSONArray sourceFilesArray) ->
+                        {
+                            result.addAll(sourceFilesArray
+                                .instanceOf(JSONString.class)
+                                .map(JSONString::getValue)
+                                .where(value -> !Strings.isNullOrEmpty(value))
+                                .map(PathPattern::parse));
+                        })
+                        .await();
+                })
+                .catchError()
+                .await();
+
+        return result;
+    }
+
+    public ProjectJSONJava setSourceFiles(PathPattern sourceFilePattern)
+    {
+        PreCondition.assertNotNull(sourceFilePattern, "sourceFilePattern");
+
+        this.jsonObject.setString(ProjectJSONJava.sourceFilesPropertyName, sourceFilePattern.toString());
+        return this;
+    }
+
+    public ProjectJSONJava setSourceFiles(Iterable<PathPattern> sourceFiles)
+    {
+        PreCondition.assertNotNull(sourceFiles, "sourceFiles");
+
+        this.jsonObject.setArray(ProjectJSONJava.sourceFilesPropertyName, sourceFiles.map(PathPattern::toString).map(JSONString::get));
         return this;
     }
 
@@ -165,7 +258,37 @@ public class ProjectJSONJava
      */
     public Iterable<ProjectSignature> getDependencies()
     {
-        return dependencies;
+        Iterable<ProjectSignature> result;
+
+        final JSONArray dependenciesArray = this.jsonObject.getArray(ProjectJSONJava.dependenciesPropertyName)
+            .catchError()
+            .await();
+        if (dependenciesArray == null)
+        {
+            result = Iterable.create();
+        }
+        else
+        {
+            result = dependenciesArray.map((JSONSegment dependencyElement) ->
+                {
+                    ProjectSignature dependency = null;
+                    if (dependencyElement instanceof JSONString)
+                    {
+                        dependency = ProjectSignature.parse(((JSONString)dependencyElement).getValue())
+                            .catchError()
+                            .await();
+                    }
+                    else if (dependencyElement instanceof JSONObject)
+                    {
+                        dependency = ProjectJSONJava.parseProjectSignature((JSONObject)dependencyElement)
+                            .catchError()
+                            .await();
+                    }
+                    return dependency;
+                })
+                .where(java.util.Objects::nonNull);
+        }
+        return result;
     }
 
     /**
@@ -178,7 +301,8 @@ public class ProjectJSONJava
     {
         PreCondition.assertNotNull(qubFolder, "qubFolder");
 
-        return Iterable.traverse(this.dependencies, (ProjectSignature dependency) ->
+        final Iterable<ProjectSignature> dependencies = this.getDependencies();
+        return Iterable.traverse(dependencies, (ProjectSignature dependency) ->
         {
             Iterable<ProjectSignature> dependencyDependencies = null;
             final String publisher = dependency.getPublisher();
@@ -220,7 +344,8 @@ public class ProjectJSONJava
         PreCondition.assertNotNull(qubFolder, "qubFolder");
 
         final MutableMap<ProjectSignature,Iterable<ProjectSignature>> result = Map.create();
-        ProjectJSONJava.collectTransitiveDependencyPaths(qubFolder, this.dependencies, result, List.create());
+        final Iterable<ProjectSignature> dependencies = this.getDependencies();
+        ProjectJSONJava.collectTransitiveDependencyPaths(qubFolder, dependencies, result, List.create());
 
         PostCondition.assertNotNull(result, "result");
 
@@ -276,7 +401,9 @@ public class ProjectJSONJava
      */
     public ProjectJSONJava setDependencies(Iterable<ProjectSignature> dependencies)
     {
-        this.dependencies = dependencies;
+        PreCondition.assertNotNull(dependencies, "dependencies");
+
+        this.jsonObject.setArray(ProjectJSONJava.dependenciesPropertyName, dependencies.map(ProjectJSONJava::projectSignatureToJson));
         return this;
     }
 
@@ -289,14 +416,7 @@ public class ProjectJSONJava
     public boolean equals(ProjectJSONJava rhs)
     {
         return rhs != null &&
-            Comparer.equal(this.mainClass, rhs.mainClass) &&
-            Comparer.equal(this.shortcutName, rhs.shortcutName) &&
-            Comparer.equal(this.version, rhs.version) &&
-            Comparer.equal(this.outputFolder, rhs.outputFolder) &&
-            Comparer.equal(this.maximumErrors, rhs.maximumErrors) &&
-            Comparer.equal(this.maximumWarnings, rhs.maximumWarnings) &&
-            Comparer.equal(this.sourceFilePatterns, rhs.sourceFilePatterns) &&
-            Comparer.equal(this.dependencies, rhs.dependencies);
+            this.jsonObject.equals(rhs.jsonObject);
     }
 
     @Override
@@ -314,133 +434,7 @@ public class ProjectJSONJava
 
     public JSONObject toJson()
     {
-        final JSONObject result = JSONObject.create();
-
-        if (!Strings.isNullOrEmpty(this.mainClass))
-        {
-            result.setString(ProjectJSONJava.mainClassPropertyName, this.mainClass);
-        }
-        if (!Strings.isNullOrEmpty(this.shortcutName))
-        {
-            result.setString(ProjectJSONJava.shortcutNamePropertyName, this.shortcutName);
-        }
-        if (!Strings.isNullOrEmpty(this.version))
-        {
-            result.setString(ProjectJSONJava.versionPropertyName, this.version);
-        }
-        if (!Strings.isNullOrEmpty(this.outputFolder))
-        {
-            result.setString(ProjectJSONJava.outputFolderPropertyName, this.outputFolder);
-        }
-        if (!Iterable.isNullOrEmpty(this.sourceFilePatterns))
-        {
-            result.set(ProjectJSONJava.sourceFilesPropertyName, JSONArray.create(this.sourceFilePatterns.map(PathPattern::toString).map(JSONString::get)));
-        }
-        if (this.maximumErrors != null)
-        {
-            result.setNumber(ProjectJSONJava.maximumErrorsPropertyName, this.maximumErrors);
-        }
-        if (this.maximumWarnings != null)
-        {
-            result.setNumber(ProjectJSONJava.maximumWarningsPropertyName, this.maximumWarnings);
-        }
-        if (!Iterable.isNullOrEmpty(this.dependencies))
-        {
-            result.set(
-                ProjectJSONJava.dependenciesPropertyName,
-                JSONArray.create(this.dependencies.map(ProjectJSONJava::projectSignatureToJson)));
-        }
-
-        PostCondition.assertNotNull(result, "result");
-
-        return result;
-    }
-
-    public static Result<ProjectJSONJava> parse(JSONObject javaObject)
-    {
-        PreCondition.assertNotNull(javaObject, "javaObject");
-
-        return Result.create(() ->
-        {
-            final ProjectJSONJava result = new ProjectJSONJava();
-            javaObject.getString(ProjectJSONJava.mainClassPropertyName)
-                .then(result::setMainClass)
-                .catchError()
-                .await();
-            javaObject.getString(ProjectJSONJava.shortcutNamePropertyName)
-                .then(result::setShortcutName)
-                .catchError()
-                .await();
-            javaObject.getString(ProjectJSONJava.versionPropertyName)
-                .catchError(WrongTypeException.class, () -> javaObject.getNumberSegment(ProjectJSONJava.versionPropertyName).await().toString())
-                .then(result::setVersion)
-                .catchError()
-                .await();
-            javaObject.getString(ProjectJSONJava.outputFolderPropertyName)
-                .then(result::setOutputFolder)
-                .catchError()
-                .await();
-            javaObject.getString(ProjectJSONJava.sourceFilesPropertyName)
-                .then((String sourceFilesPattern) ->
-                {
-                    if (!Strings.isNullOrEmpty(sourceFilesPattern))
-                    {
-                        result.setSourceFilePatterns(Iterable.create(PathPattern.parse(sourceFilesPattern)));
-                    }
-                })
-                .catchError(WrongTypeException.class, () ->
-                {
-                    javaObject.getArray(ProjectJSONJava.sourceFilesPropertyName)
-                        .then((JSONArray sourceFilesArray) ->
-                        {
-                            result.setSourceFilePatterns(sourceFilesArray
-                                .instanceOf(JSONString.class)
-                                .map(JSONString::getValue)
-                                .where(value -> !Strings.isNullOrEmpty(value))
-                                .map(PathPattern::parse));
-                        })
-                        .await();
-                })
-                .catchError()
-                .await();
-            javaObject.getNumber(ProjectJSONJava.maximumErrorsPropertyName)
-                .then((Double maximumErrors) -> result.setMaximumErrors(maximumErrors.intValue()))
-                .catchError()
-                .await();
-            javaObject.getNumber(ProjectJSONJava.maximumWarningsPropertyName)
-                .then((Double maximumWarnings) -> result.setMaximumWarnings(maximumWarnings.intValue()))
-                .catchError()
-                .await();
-            javaObject.getArray(ProjectJSONJava.dependenciesPropertyName)
-                .then((JSONArray dependenciesArray) ->
-                {
-                    result.setDependencies(dependenciesArray
-                        .map((JSONSegment dependencyElement) ->
-                        {
-                            ProjectSignature dependency = null;
-                            if (dependencyElement instanceof JSONString)
-                            {
-                                dependency = ProjectSignature.parse(((JSONString)dependencyElement).getValue())
-                                    .catchError()
-                                    .await();
-                            }
-                            else if (dependencyElement instanceof JSONObject)
-                            {
-                                dependency = ProjectJSONJava.parseProjectSignature((JSONObject)dependencyElement)
-                                    .catchError()
-                                    .await();
-                            }
-                            return dependency;
-                        })
-                        .where(Objects::nonNull));
-                })
-                .catchError()
-                .await();
-
-            PostCondition.assertNotNull(result, "result");
-
-            return result;
-        });
+        return this.jsonObject;
     }
 
     public static JSONObject projectSignatureToJson(ProjectSignature projectSignature)
