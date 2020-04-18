@@ -176,9 +176,34 @@ public class ProjectJSON
     {
         PreCondition.assertNotNull(projectJsonFile, "projectJsonFile");
 
-        return Result.createUsing(
-            () -> CharacterReadStream.create(new BufferedByteReadStream(projectJsonFile.getContentByteReadStream().await())),
-            (CharacterReadStream readStream) -> ProjectJSON.parse(CharacterReadStreamIterator.create(readStream)).await());
+        return JSON.parseObject(projectJsonFile)
+            .then((JSONObject json) -> ProjectJSON.create(json));
+    }
+
+    /**
+     * Parse a ProjectJSON object from the provided bytes.
+     * @param bytes The bytes to parse.
+     * @return The result of attempting to parse a ProjectJSON object.
+     */
+    public static Result<ProjectJSON> parse(ByteReadStream bytes)
+    {
+        PreCondition.assertNotNull(bytes, "bytes");
+
+        return JSON.parseObject(bytes)
+            .then((JSONObject rootObject) -> ProjectJSON.create(rootObject));
+    }
+
+    /**
+     * Parse a ProjectJSON object from the provided characters.
+     * @param characters The characters to parse.
+     * @return The result of attempting to parse a ProjectJSON object.
+     */
+    public static Result<ProjectJSON> parse(CharacterReadStream characters)
+    {
+        PreCondition.assertNotNull(characters, "characters");
+
+        return JSON.parseObject(characters)
+            .then((JSONObject rootObject) -> ProjectJSON.create(rootObject));
     }
 
     /**
