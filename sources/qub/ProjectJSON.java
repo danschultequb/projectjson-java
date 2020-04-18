@@ -177,8 +177,8 @@ public class ProjectJSON
         PreCondition.assertNotNull(projectJsonFile, "projectJsonFile");
 
         return Result.createUsing(
-            () -> new BufferedByteReadStream(projectJsonFile.getContentByteReadStream().await()).asCharacterReadStream(),
-            (CharacterReadStream readStream) -> ProjectJSON.parse(readStream).await());
+            () -> CharacterReadStream.create(new BufferedByteReadStream(projectJsonFile.getContentByteReadStream().await())),
+            (CharacterReadStream readStream) -> ProjectJSON.parse(CharacterReadStreamIterator.create(readStream)).await());
     }
 
     /**
