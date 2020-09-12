@@ -99,9 +99,25 @@ public class ProjectJSON
      * Get the version.
      * @return The version.
      */
-    public String getVersion()
+    public VersionNumber getVersion()
     {
-        return this.getString(ProjectJSON.versionPropertyName);
+        VersionNumber result;
+
+        final String versionString = this.getString(ProjectJSON.versionPropertyName);
+        if (versionString == null)
+        {
+            result = null;
+        }
+        else if (versionString.isEmpty())
+        {
+            result = VersionNumber.create();
+        }
+        else
+        {
+            result = VersionNumber.parse(versionString).await();
+        }
+
+        return result;
     }
 
     /**
@@ -113,6 +129,17 @@ public class ProjectJSON
         PreCondition.assertNotNullAndNotEmpty(version, "version");
 
         return this.setString(ProjectJSON.versionPropertyName, version);
+    }
+
+    /**
+     * Set the version.
+     * @param version The version.
+     */
+    public ProjectJSON setVersion(VersionNumber version)
+    {
+        PreCondition.assertNotNullAndNotEmpty(version, "version");
+
+        return this.setString(ProjectJSON.versionPropertyName, version.toString());
     }
 
     /**

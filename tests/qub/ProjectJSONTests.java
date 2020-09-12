@@ -93,13 +93,44 @@ public interface ProjectJSONTests
                     runner.test("with " + Strings.escapeAndQuote(version), (Test test) ->
                     {
                         final ProjectJSON projectJSON = ProjectJSON.create();
-                        test.<ProjectJSON>assertSame(projectJSON, projectJSON.setVersion(version));
-                        test.assertEqual(version, projectJSON.getVersion());
+                        final ProjectJSON setVersionResult = projectJSON.setVersion(version);
+                        test.assertSame(projectJSON, setVersionResult);
+                        test.assertEqual(version, projectJSON.getVersion().toString());
                     });
                 };
 
                 setVersionTest.run("apples");
                 setVersionTest.run("apricots");
+            });
+
+            runner.testGroup("setVersion(VersionNumber)", () ->
+            {
+                final Action2<VersionNumber,Throwable> setVersionErrorTest = (VersionNumber version, Throwable expected) ->
+                {
+                    runner.test("with " + Strings.escapeAndQuote(version), (Test test) ->
+                    {
+                        final ProjectJSON projectJSON = ProjectJSON.create();
+                        test.assertThrows(() -> projectJSON.setVersion(version), expected);
+                        test.assertNull(projectJSON.getVersion());
+                    });
+                };
+
+                setVersionErrorTest.run(null, new PreConditionFailure("version cannot be null."));
+                setVersionErrorTest.run(VersionNumber.create(), new PreConditionFailure("version cannot be empty."));
+
+                final Action1<VersionNumber> setVersionTest = (VersionNumber version) ->
+                {
+                    runner.test("with " + Strings.escapeAndQuote(version), (Test test) ->
+                    {
+                        final ProjectJSON projectJSON = ProjectJSON.create();
+                        final ProjectJSON setVersionResult = projectJSON.setVersion(version);
+                        test.assertSame(projectJSON, setVersionResult);
+                        test.assertEqual(version, projectJSON.getVersion());
+                    });
+                };
+
+                setVersionTest.run(VersionNumber.create().addParts(1, 2, 3));
+                setVersionTest.run(VersionNumber.create().setSuffix("apricots"));
             });
 
             runner.testGroup("setJava()", () ->
