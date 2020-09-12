@@ -307,8 +307,8 @@ public class ProjectJSONJava
             Iterable<ProjectSignature> dependencyDependencies = null;
             final String publisher = dependency.getPublisher();
             final String project = dependency.getProject();
-            final String version = dependency.getVersion();
-            final File dependencyProjectJsonFile = qubFolder.getProjectJSONFile(publisher, project, version)
+            final VersionNumber version = dependency.getVersion();
+            final File dependencyProjectJsonFile = qubFolder.getProjectJSONFile(publisher, project, version.toString())
                 .catchError()
                 .await();
             if (dependencyProjectJsonFile != null)
@@ -367,8 +367,8 @@ public class ProjectJSONJava
 
                 final String publisher = dependency.getPublisher();
                 final String project = dependency.getProject();
-                final String version = dependency.getVersion();
-                final File dependencyProjectJsonFile = qubFolder.getProjectJSONFile(publisher, project, version)
+                final VersionNumber version = dependency.getVersion();
+                final File dependencyProjectJsonFile = qubFolder.getProjectJSONFile(publisher, project, version.toString())
                     .catchError()
                     .await();
                 if (dependencyProjectJsonFile != null)
@@ -444,7 +444,7 @@ public class ProjectJSONJava
         return JSONObject.create()
             .setString(ProjectJSONJava.projectSignaturePublisherPropertyName, projectSignature.getPublisher())
             .setString(ProjectJSONJava.projectSignatureProjectPropertyName, projectSignature.getProject())
-            .setString(ProjectJSONJava.projectSignatureVersionPropertyName, projectSignature.getVersion());
+            .setString(ProjectJSONJava.projectSignatureVersionPropertyName, projectSignature.getVersion().toString());
     }
 
     public static Result<ProjectSignature> parseProjectSignature(JSONObject jsonObject)
@@ -456,7 +456,7 @@ public class ProjectJSONJava
             final String publisher = jsonObject.getString(ProjectJSONJava.projectSignaturePublisherPropertyName).await();
             final String project = jsonObject.getString(ProjectJSONJava.projectSignatureProjectPropertyName).await();
             final String version = jsonObject.getString(ProjectJSONJava.projectSignatureVersionPropertyName).await();
-            return new ProjectSignature(publisher, project, version);
+            return ProjectSignature.create(publisher, project, version);
         });
     }
 }

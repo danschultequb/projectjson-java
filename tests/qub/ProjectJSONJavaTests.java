@@ -294,15 +294,15 @@ public interface ProjectJSONJavaTests
                 getDependenciesTest.run(
                     ProjectJSONJava.create(JSONObject.create()
                         .setArray("dependencies", Iterable.create(
-                            ProjectJSONJava.projectSignatureToJson(new ProjectSignature("a", "b", "1"))))),
+                            ProjectJSONJava.projectSignatureToJson(ProjectSignature.create("a", "b", "1"))))),
                     Iterable.create(
-                        new ProjectSignature("a", "b", "1")));
+                        ProjectSignature.create("a", "b", "1")));
                 getDependenciesTest.run(
                     ProjectJSONJava.create(JSONObject.create()
                         .setArray("dependencies", Iterable.create(
                             JSONString.get("a/b@1")))),
                     Iterable.create(
-                        new ProjectSignature("a", "b", "1")));
+                        ProjectSignature.create("a", "b", "1")));
                 getDependenciesTest.run(
                     ProjectJSONJava.create(JSONObject.create()
                         .setArray("dependencies", Iterable.create(
@@ -341,7 +341,7 @@ public interface ProjectJSONJavaTests
                 };
 
                 setDependenciesTest.run(Iterable.create());
-                setDependenciesTest.run(Iterable.create(new ProjectSignature("a", "b", "c")));
+                setDependenciesTest.run(Iterable.create(ProjectSignature.create("a", "b", "c")));
             });
 
             runner.testGroup("getTransitiveDependencies(QubFolder)", () ->
@@ -357,7 +357,7 @@ public interface ProjectJSONJavaTests
                 {
                     final ProjectJSONJava projectJSONJava = ProjectJSONJava.create()
                         .setDependencies(Iterable.create(
-                            new ProjectSignature("a", "b", "1")));
+                            ProjectSignature.create("a", "b", "1")));
 
                     final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
                     fileSystem.createRoot("/").await();
@@ -365,7 +365,7 @@ public interface ProjectJSONJavaTests
 
                     test.assertEqual(
                         Iterable.create(
-                            new ProjectSignature("a", "b", "1")),
+                            ProjectSignature.create("a", "b", "1")),
                         projectJSONJava.getTransitiveDependencies(qubFolder));
                 });
 
@@ -373,7 +373,7 @@ public interface ProjectJSONJavaTests
                 {
                     final ProjectJSONJava projectJSONJava = ProjectJSONJava.create()
                         .setDependencies(Iterable.create(
-                            new ProjectSignature("a", "b?", "1")));
+                            ProjectSignature.create("a", "b?", "1")));
 
                     final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
                     fileSystem.createRoot("/").await();
@@ -381,7 +381,7 @@ public interface ProjectJSONJavaTests
 
                     test.assertEqual(
                         Iterable.create(
-                            new ProjectSignature("a", "b?", "1")),
+                            ProjectSignature.create("a", "b?", "1")),
                         projectJSONJava.getTransitiveDependencies(qubFolder));
                 });
 
@@ -389,7 +389,7 @@ public interface ProjectJSONJavaTests
                 {
                     final ProjectJSONJava projectJSONJava = ProjectJSONJava.create()
                         .setDependencies(Iterable.create(
-                            new ProjectSignature("a", "b", "1")));
+                            ProjectSignature.create("a", "b", "1")));
 
                     final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
                     fileSystem.createRoot("/").await();
@@ -398,7 +398,7 @@ public interface ProjectJSONJavaTests
 
                     test.assertEqual(
                         Iterable.create(
-                            new ProjectSignature("a", "b", "1")),
+                            ProjectSignature.create("a", "b", "1")),
                         projectJSONJava.getTransitiveDependencies(qubFolder));
                 });
 
@@ -406,7 +406,7 @@ public interface ProjectJSONJavaTests
                 {
                     final ProjectJSONJava projectJSONJava = ProjectJSONJava.create()
                         .setDependencies(Iterable.create(
-                            new ProjectSignature("a", "b", "1")));
+                            ProjectSignature.create("a", "b", "1")));
 
                     final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
                     fileSystem.createRoot("/").await();
@@ -417,7 +417,7 @@ public interface ProjectJSONJavaTests
 
                     test.assertEqual(
                         Iterable.create(
-                            new ProjectSignature("a", "b", "1")),
+                            ProjectSignature.create("a", "b", "1")),
                         projectJSONJava.getTransitiveDependencies(qubFolder));
                 });
 
@@ -425,7 +425,7 @@ public interface ProjectJSONJavaTests
                 {
                     final ProjectJSONJava projectJSONJava = ProjectJSONJava.create()
                         .setDependencies(Iterable.create(
-                            new ProjectSignature("a", "b", "1")));
+                            ProjectSignature.create("a", "b", "1")));
 
                     final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
                     fileSystem.createRoot("/").await();
@@ -434,13 +434,13 @@ public interface ProjectJSONJavaTests
                         .setContentsAsString(ProjectJSON.create()
                             .setJava(ProjectJSONJava.create()
                                 .setDependencies(Iterable.create(
-                                    new ProjectSignature("c", "d", "2"))))
+                                    ProjectSignature.create("c", "d", "2"))))
                             .toString());
 
                     test.assertEqual(
                         Iterable.create(
-                            new ProjectSignature("a", "b", "1"),
-                            new ProjectSignature("c", "d", "2")),
+                            ProjectSignature.create("a", "b", "1"),
+                            ProjectSignature.create("c", "d", "2")),
                         projectJSONJava.getTransitiveDependencies(qubFolder));
                 });
 
@@ -448,8 +448,8 @@ public interface ProjectJSONJavaTests
                 {
                     final ProjectJSONJava projectJSONJava = ProjectJSONJava.create()
                         .setDependencies(Iterable.create(
-                            new ProjectSignature("a", "b", "1"),
-                            new ProjectSignature("x", "y", "z")));
+                            ProjectSignature.create("a", "b", "1"),
+                            ProjectSignature.create("x", "y", "z")));
 
                     final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
                     fileSystem.createRoot("/").await();
@@ -458,14 +458,14 @@ public interface ProjectJSONJavaTests
                         .setContentsAsString(ProjectJSON.create()
                             .setJava(ProjectJSONJava.create()
                                 .setDependencies(Iterable.create(
-                                    new ProjectSignature("c", "d", "2"))))
+                                    ProjectSignature.create("c", "d", "2"))))
                             .toString());
 
                     test.assertEqual(
                         Iterable.create(
-                            new ProjectSignature("x", "y", "z"),
-                            new ProjectSignature("a", "b", "1"),
-                            new ProjectSignature("c", "d", "2")),
+                            ProjectSignature.create("x", "y", "z"),
+                            ProjectSignature.create("a", "b", "1"),
+                            ProjectSignature.create("c", "d", "2")),
                         projectJSONJava.getTransitiveDependencies(qubFolder));
                 });
 
@@ -473,8 +473,8 @@ public interface ProjectJSONJavaTests
                 {
                     final ProjectJSONJava projectJSONJava = ProjectJSONJava.create()
                         .setDependencies(Iterable.create(
-                            new ProjectSignature("a", "b", "1"),
-                            new ProjectSignature("x", "y", "z")));
+                            ProjectSignature.create("a", "b", "1"),
+                            ProjectSignature.create("x", "y", "z")));
 
                     final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
                     fileSystem.createRoot("/").await();
@@ -483,14 +483,14 @@ public interface ProjectJSONJavaTests
                         .setContentsAsString(ProjectJSON.create()
                             .setJava(ProjectJSONJava.create()
                                 .setDependencies(Iterable.create(
-                                    new ProjectSignature("c", "d", "2"))))
+                                    ProjectSignature.create("c", "d", "2"))))
                             .toString());
 
                     test.assertEqual(
                         Iterable.create(
-                            new ProjectSignature("x", "y", "z"),
-                            new ProjectSignature("a", "b", "1"),
-                            new ProjectSignature("c", "d", "2")),
+                            ProjectSignature.create("x", "y", "z"),
+                            ProjectSignature.create("a", "b", "1"),
+                            ProjectSignature.create("c", "d", "2")),
                         projectJSONJava.getTransitiveDependencies(qubFolder));
                 });
             });
@@ -508,7 +508,7 @@ public interface ProjectJSONJavaTests
                 {
                     final ProjectJSONJava projectJSONJava = ProjectJSONJava.create()
                         .setDependencies(Iterable.create(
-                            new ProjectSignature("a", "b", "1")));
+                            ProjectSignature.create("a", "b", "1")));
 
                     final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
                     fileSystem.createRoot("/").await();
@@ -516,7 +516,7 @@ public interface ProjectJSONJavaTests
 
                     test.assertEqual(
                         Map.<ProjectSignature,Iterable<ProjectSignature>>create()
-                            .set(new ProjectSignature("a", "b", "1"), Iterable.create()),
+                            .set(ProjectSignature.create("a", "b", "1"), Iterable.create()),
                         projectJSONJava.getTransitiveDependencyPaths(qubFolder));
                 });
 
@@ -524,7 +524,7 @@ public interface ProjectJSONJavaTests
                 {
                     final ProjectJSONJava projectJSONJava = ProjectJSONJava.create()
                         .setDependencies(Iterable.create(
-                            new ProjectSignature("a", "b?", "1")));
+                            ProjectSignature.create("a", "b?", "1")));
 
                     final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
                     fileSystem.createRoot("/").await();
@@ -532,7 +532,7 @@ public interface ProjectJSONJavaTests
 
                     test.assertEqual(
                         Map.<ProjectSignature,Iterable<ProjectSignature>>create()
-                            .set(new ProjectSignature("a", "b?", "1"), Iterable.create()),
+                            .set(ProjectSignature.create("a", "b?", "1"), Iterable.create()),
                         projectJSONJava.getTransitiveDependencyPaths(qubFolder));
                 });
 
@@ -540,7 +540,7 @@ public interface ProjectJSONJavaTests
                 {
                     final ProjectJSONJava projectJSONJava = ProjectJSONJava.create()
                         .setDependencies(Iterable.create(
-                            new ProjectSignature("a", "b", "1")));
+                            ProjectSignature.create("a", "b", "1")));
 
                     final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
                     fileSystem.createRoot("/").await();
@@ -549,7 +549,7 @@ public interface ProjectJSONJavaTests
 
                     test.assertEqual(
                         Map.<ProjectSignature,Iterable<ProjectSignature>>create()
-                            .set(new ProjectSignature("a", "b", "1"), Iterable.create()),
+                            .set(ProjectSignature.create("a", "b", "1"), Iterable.create()),
                         projectJSONJava.getTransitiveDependencyPaths(qubFolder));
                 });
 
@@ -557,7 +557,7 @@ public interface ProjectJSONJavaTests
                 {
                     final ProjectJSONJava projectJSONJava = ProjectJSONJava.create()
                         .setDependencies(Iterable.create(
-                            new ProjectSignature("a", "b", "1")));
+                            ProjectSignature.create("a", "b", "1")));
 
                     final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
                     fileSystem.createRoot("/").await();
@@ -568,7 +568,7 @@ public interface ProjectJSONJavaTests
 
                     test.assertEqual(
                         Map.<ProjectSignature,Iterable<ProjectSignature>>create()
-                            .set(new ProjectSignature("a", "b", "1"), Iterable.create()),
+                            .set(ProjectSignature.create("a", "b", "1"), Iterable.create()),
                         projectJSONJava.getTransitiveDependencyPaths(qubFolder));
                 });
 
@@ -576,7 +576,7 @@ public interface ProjectJSONJavaTests
                 {
                     final ProjectJSONJava projectJSONJava = ProjectJSONJava.create()
                         .setDependencies(Iterable.create(
-                            new ProjectSignature("a", "b", "1")));
+                            ProjectSignature.create("a", "b", "1")));
 
                     final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
                     fileSystem.createRoot("/").await();
@@ -585,14 +585,14 @@ public interface ProjectJSONJavaTests
                         .setContentsAsString(ProjectJSON.create()
                             .setJava(ProjectJSONJava.create()
                                 .setDependencies(Iterable.create(
-                                    new ProjectSignature("c", "d", "2"))))
+                                    ProjectSignature.create("c", "d", "2"))))
                             .toString());
 
                     test.assertEqual(
                         Map.<ProjectSignature,Iterable<ProjectSignature>>create()
-                            .set(new ProjectSignature("a", "b", "1"), Iterable.create())
-                            .set(new ProjectSignature("c", "d", "2"), Iterable.create(
-                                new ProjectSignature("a", "b", "1"))),
+                            .set(ProjectSignature.create("a", "b", "1"), Iterable.create())
+                            .set(ProjectSignature.create("c", "d", "2"), Iterable.create(
+                                ProjectSignature.create("a", "b", "1"))),
                         projectJSONJava.getTransitiveDependencyPaths(qubFolder));
                 });
 
@@ -600,8 +600,8 @@ public interface ProjectJSONJavaTests
                 {
                     final ProjectJSONJava projectJSONJava = ProjectJSONJava.create()
                         .setDependencies(Iterable.create(
-                            new ProjectSignature("a", "b", "1"),
-                            new ProjectSignature("x", "y", "z")));
+                            ProjectSignature.create("a", "b", "1"),
+                            ProjectSignature.create("x", "y", "z")));
 
                     final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
                     fileSystem.createRoot("/").await();
@@ -610,15 +610,15 @@ public interface ProjectJSONJavaTests
                         .setContentsAsString(ProjectJSON.create()
                             .setJava(ProjectJSONJava.create()
                                 .setDependencies(Iterable.create(
-                                    new ProjectSignature("c", "d", "2"))))
+                                    ProjectSignature.create("c", "d", "2"))))
                             .toString());
 
                     test.assertEqual(
                         Map.<ProjectSignature,Iterable<ProjectSignature>>create()
-                            .set(new ProjectSignature("a", "b", "1"), Iterable.create())
-                            .set(new ProjectSignature("c", "d", "2"), Iterable.create(
-                                new ProjectSignature("a", "b", "1")))
-                            .set(new ProjectSignature("x", "y", "z"), Iterable.create()),
+                            .set(ProjectSignature.create("a", "b", "1"), Iterable.create())
+                            .set(ProjectSignature.create("c", "d", "2"), Iterable.create(
+                                ProjectSignature.create("a", "b", "1")))
+                            .set(ProjectSignature.create("x", "y", "z"), Iterable.create()),
                         projectJSONJava.getTransitiveDependencyPaths(qubFolder));
                 });
 
@@ -626,8 +626,8 @@ public interface ProjectJSONJavaTests
                 {
                     final ProjectJSONJava projectJSONJava = ProjectJSONJava.create()
                         .setDependencies(Iterable.create(
-                            new ProjectSignature("a", "b", "1"),
-                            new ProjectSignature("x", "y", "z")));
+                            ProjectSignature.create("a", "b", "1"),
+                            ProjectSignature.create("x", "y", "z")));
 
                     final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
                     fileSystem.createRoot("/").await();
@@ -636,21 +636,21 @@ public interface ProjectJSONJavaTests
                         .setContentsAsString(ProjectJSON.create()
                             .setJava(ProjectJSONJava.create()
                                 .setDependencies(Iterable.create(
-                                    new ProjectSignature("c", "d", "2"))))
+                                    ProjectSignature.create("c", "d", "2"))))
                             .toString());
                     qubFolder.getProjectJSONFile("x", "y", "z").await()
                         .setContentsAsString(ProjectJSON.create()
                             .setJava(ProjectJSONJava.create()
                                 .setDependencies(Iterable.create(
-                                    new ProjectSignature("c", "d", "2"))))
+                                    ProjectSignature.create("c", "d", "2"))))
                             .toString());
 
                     test.assertEqual(
                         Map.<ProjectSignature,Iterable<ProjectSignature>>create()
-                            .set(new ProjectSignature("a", "b", "1"), Iterable.create())
-                            .set(new ProjectSignature("c", "d", "2"), Iterable.create(
-                                new ProjectSignature("a", "b", "1")))
-                            .set(new ProjectSignature("x", "y", "z"), Iterable.create()),
+                            .set(ProjectSignature.create("a", "b", "1"), Iterable.create())
+                            .set(ProjectSignature.create("c", "d", "2"), Iterable.create(
+                                ProjectSignature.create("a", "b", "1")))
+                            .set(ProjectSignature.create("x", "y", "z"), Iterable.create()),
                         projectJSONJava.getTransitiveDependencyPaths(qubFolder));
                 });
 
@@ -658,7 +658,7 @@ public interface ProjectJSONJavaTests
                 {
                     final ProjectJSONJava projectJSONJava = ProjectJSONJava.create()
                         .setDependencies(Iterable.create(
-                            new ProjectSignature("a", "b", "1")));
+                            ProjectSignature.create("a", "b", "1")));
 
                     final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
                     fileSystem.createRoot("/").await();
@@ -671,7 +671,7 @@ public interface ProjectJSONJavaTests
 
                     test.assertEqual(
                         Map.<ProjectSignature,Iterable<ProjectSignature>>create()
-                            .set(new ProjectSignature("a", "b", "1"), Iterable.create()),
+                            .set(ProjectSignature.create("a", "b", "1"), Iterable.create()),
                         projectJSONJava.getTransitiveDependencyPaths(qubFolder));
                 });
 
@@ -679,7 +679,7 @@ public interface ProjectJSONJavaTests
                 {
                     final ProjectJSONJava projectJSONJava = ProjectJSONJava.create()
                         .setDependencies(Iterable.create(
-                            new ProjectSignature("a", "b", "1")));
+                            ProjectSignature.create("a", "b", "1")));
 
                     final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
                     fileSystem.createRoot("/").await();
@@ -692,7 +692,7 @@ public interface ProjectJSONJavaTests
 
                     test.assertEqual(
                         Map.<ProjectSignature,Iterable<ProjectSignature>>create()
-                            .set(new ProjectSignature("a", "b", "1"), Iterable.create()),
+                            .set(ProjectSignature.create("a", "b", "1"), Iterable.create()),
                         projectJSONJava.getTransitiveDependencyPaths(qubFolder));
                 });
             });
@@ -763,9 +763,9 @@ public interface ProjectJSONJavaTests
                     false);
                 equalsTest.run(
                     ProjectJSONJava.create()
-                        .setDependencies(Iterable.create(new ProjectSignature("a", "b", "c"))),
+                        .setDependencies(Iterable.create(ProjectSignature.create("a", "b", "c"))),
                     ProjectJSONJava.create()
-                        .setDependencies(Iterable.create(new ProjectSignature("d", "e", "f"))),
+                        .setDependencies(Iterable.create(ProjectSignature.create("d", "e", "f"))),
                     false);
             });
 
@@ -831,9 +831,9 @@ public interface ProjectJSONJavaTests
                     false);
                 equalsTest.run(
                     ProjectJSONJava.create()
-                        .setDependencies(Iterable.create(new ProjectSignature("a", "b", "c"))),
+                        .setDependencies(Iterable.create(ProjectSignature.create("a", "b", "c"))),
                     ProjectJSONJava.create()
-                        .setDependencies(Iterable.create(new ProjectSignature("d", "e", "f"))),
+                        .setDependencies(Iterable.create(ProjectSignature.create("d", "e", "f"))),
                     false);
             });
 
@@ -886,7 +886,7 @@ public interface ProjectJSONJavaTests
                 toStringTest.run(
                     ProjectJSONJava.create()
                         .setDependencies(Iterable.create(
-                            new ProjectSignature("a", "b", "c"))),
+                            ProjectSignature.create("a", "b", "c"))),
                     "{\"dependencies\":[{\"publisher\":\"a\",\"project\":\"b\",\"version\":\"c\"}]}");
             });
 
@@ -948,7 +948,7 @@ public interface ProjectJSONJavaTests
                 toStringTest.run(
                     ProjectJSONJava.create()
                         .setDependencies(Iterable.create(
-                            new ProjectSignature("a", "b", "c"))),
+                            ProjectSignature.create("a", "b", "c"))),
                     JSONFormat.consise,
                     "{\"dependencies\":[{\"publisher\":\"a\",\"project\":\"b\",\"version\":\"c\"}]}");
 
@@ -1000,7 +1000,7 @@ public interface ProjectJSONJavaTests
                 toStringTest.run(
                     ProjectJSONJava.create()
                         .setDependencies(Iterable.create(
-                            new ProjectSignature("a", "b", "c"))),
+                            ProjectSignature.create("a", "b", "c"))),
                     JSONFormat.pretty,
                     "{\n  \"dependencies\": [\n    {\n      \"publisher\": \"a\",\n      \"project\": \"b\",\n      \"version\": \"c\"\n    }\n  ]\n}");
             });
@@ -1113,7 +1113,7 @@ public interface ProjectJSONJavaTests
                     "{\"dependencies\":[{\"publisher\":\"a\",\"project\":\"b\",\"version\":\"c\"}]}",
                     ProjectJSONJava.create()
                         .setDependencies(Iterable.create(
-                            new ProjectSignature("a", "b", "c"))));
+                            ProjectSignature.create("a", "b", "c"))));
                 parseTest.run(
                     "{\"dependencies\":[\"a/b@c\"]}",
                     ProjectJSONJava.create(JSONObject.create()
