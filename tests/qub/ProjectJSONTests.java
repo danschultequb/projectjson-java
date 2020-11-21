@@ -223,7 +223,7 @@ public interface ProjectJSONTests
 
                 runner.test("with file that doesn't exist", (Test test) ->
                 {
-                    final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
+                    final InMemoryFileSystem fileSystem = InMemoryFileSystem.create(test.getClock());
                     fileSystem.createRoot("/").await();
                     final File file = fileSystem.getFile("/file.txt").await();
                     test.assertThrows(() -> ProjectJSON.parse(file).await(),
@@ -234,7 +234,7 @@ public interface ProjectJSONTests
                 {
                     runner.test("with " + Strings.escapeAndQuote(text), (Test test) ->
                     {
-                        final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
+                        final InMemoryFileSystem fileSystem = InMemoryFileSystem.create(test.getClock());
                         fileSystem.createRoot("/").await();
                         final File file = fileSystem.createFile("/file.txt").await();
                         file.setContentsAsString(text).await();
