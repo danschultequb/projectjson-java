@@ -1,6 +1,6 @@
 package qub;
 
-public class ProjectJSONJava
+public class ProjectJSONJava extends JSONObjectWrapperBase
 {
     public final static String mainClassPropertyName = "mainClass";
     public final static String shortcutNamePropertyName = "shortcutName";
@@ -15,13 +15,9 @@ public class ProjectJSONJava
     public final static String projectSignatureProjectPropertyName = "project";
     public final static String projectSignatureVersionPropertyName = "version";
 
-    private final JSONObject jsonObject;
-
-    private ProjectJSONJava(JSONObject jsonObject)
+    private ProjectJSONJava(JSONObject json)
     {
-        PreCondition.assertNotNull(jsonObject, "jsonObject");
-
-        this.jsonObject = jsonObject;
+        super(json);
     }
 
     /**
@@ -31,8 +27,6 @@ public class ProjectJSONJava
      */
     public static ProjectJSONJava create(JSONObject jsonObject)
     {
-        PreCondition.assertNotNull(jsonObject, "jsonObject");
-
         return new ProjectJSONJava(jsonObject);
     }
 
@@ -49,7 +43,7 @@ public class ProjectJSONJava
     {
         PreCondition.assertNotNullAndNotEmpty(propertyName, "propertyName");
 
-        return this.jsonObject.getString(propertyName)
+        return this.json.getString(propertyName)
             .catchError()
             .await();
     }
@@ -59,7 +53,7 @@ public class ProjectJSONJava
         PreCondition.assertNotNullAndNotEmpty(propertyName, "propertyName");
         PreCondition.assertNotNullAndNotEmpty(propertyValue, "propertyValue");
 
-        this.jsonObject.setString(propertyName, propertyValue);
+        this.json.setString(propertyName, propertyValue);
         return this;
     }
 
@@ -67,17 +61,14 @@ public class ProjectJSONJava
     {
         PreCondition.assertNotNullAndNotEmpty(propertyName, "propertyName");
 
-        final Double number = this.jsonObject.getNumber(propertyName)
-            .catchError()
-            .await();
-        return number == null ? null : number.intValue();
+        return this.json.getInteger(propertyName).catchError().await();
     }
 
     private ProjectJSONJava setInteger(String propertyName, int propertyValue)
     {
         PreCondition.assertNotNullAndNotEmpty(propertyName, "propertyName");
 
-        this.jsonObject.setNumber(propertyName, propertyValue);
+        this.json.setNumber(propertyName, propertyValue);
         return this;
     }
 
@@ -209,7 +200,7 @@ public class ProjectJSONJava
     {
         final List<PathPattern> result = List.create();
 
-        this.jsonObject.getString(ProjectJSONJava.sourceFilesPropertyName)
+        this.json.getString(ProjectJSONJava.sourceFilesPropertyName)
                 .then((String sourceFilesPattern) ->
                 {
                     if (!Strings.isNullOrEmpty(sourceFilesPattern))
@@ -219,7 +210,7 @@ public class ProjectJSONJava
                 })
                 .catchError(WrongTypeException.class, () ->
                 {
-                    this.jsonObject.getArray(ProjectJSONJava.sourceFilesPropertyName)
+                    this.json.getArray(ProjectJSONJava.sourceFilesPropertyName)
                         .then((JSONArray sourceFilesArray) ->
                         {
                             result.addAll(sourceFilesArray
@@ -236,19 +227,26 @@ public class ProjectJSONJava
         return result;
     }
 
-    public ProjectJSONJava setSourceFiles(PathPattern sourceFilePattern)
+    public ProjectJSONJava setSourceFiles(PathPattern... sourceFilePattern)
     {
         PreCondition.assertNotNull(sourceFilePattern, "sourceFilePattern");
 
-        this.jsonObject.setString(ProjectJSONJava.sourceFilesPropertyName, sourceFilePattern.toString());
-        return this;
+        return this.setSourceFiles(Iterable.create(sourceFilePattern));
     }
 
     public ProjectJSONJava setSourceFiles(Iterable<PathPattern> sourceFiles)
     {
         PreCondition.assertNotNull(sourceFiles, "sourceFiles");
 
-        this.jsonObject.setArray(ProjectJSONJava.sourceFilesPropertyName, sourceFiles.map(PathPattern::toString).map(JSONString::get));
+        if (sourceFiles.getCount() == 1)
+        {
+            this.json.setString(ProjectJSONJava.sourceFilesPropertyName, sourceFiles.first().toString());
+        }
+        else
+        {
+            this.json.setArray(ProjectJSONJava.sourceFilesPropertyName, sourceFiles.map(PathPattern::toString).map(JSONString::get));
+        }
+
         return this;
     }
 
@@ -260,7 +258,7 @@ public class ProjectJSONJava
     {
         Iterable<ProjectSignature> result;
 
-        final JSONArray dependenciesArray = this.jsonObject.getArray(ProjectJSONJava.dependenciesPropertyName)
+        final JSONArray dependenciesArray = this.json.getArray(ProjectJSONJava.dependenciesPropertyName)
             .catchError()
             .await();
         if (dependenciesArray == null)
@@ -403,38 +401,8 @@ public class ProjectJSONJava
     {
         PreCondition.assertNotNull(dependencies, "dependencies");
 
-        this.jsonObject.setArray(ProjectJSONJava.dependenciesPropertyName, dependencies.map(ProjectJSONJava::projectSignatureToJson));
+        this.json.setArray(ProjectJSONJava.dependenciesPropertyName, dependencies.map(ProjectJSONJava::projectSignatureToJson));
         return this;
-    }
-
-    @Override
-    public boolean equals(Object rhs)
-    {
-        return rhs instanceof ProjectJSONJava && this.equals((ProjectJSONJava)rhs);
-    }
-
-    public boolean equals(ProjectJSONJava rhs)
-    {
-        return rhs != null &&
-            this.jsonObject.equals(rhs.jsonObject);
-    }
-
-    @Override
-    public String toString()
-    {
-        return this.toString(JSONFormat.consise);
-    }
-
-    public String toString(JSONFormat format)
-    {
-        PreCondition.assertNotNull(format, "format");
-
-        return this.toJson().toString(format);
-    }
-
-    public JSONObject toJson()
-    {
-        return this.jsonObject;
     }
 
     public static JSONObject projectSignatureToJson(ProjectSignature projectSignature)

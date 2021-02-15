@@ -6,7 +6,7 @@ public interface ProjectJSONJavaTests
     {
         runner.testGroup(ProjectJSONJava.class, () ->
         {
-            runner.test("constructor()", (Test test) ->
+            runner.test("create()", (Test test) ->
             {
                 final ProjectJSONJava projectJSONJava = ProjectJSONJava.create();
                 test.assertNull(projectJSONJava.getMainClass());
@@ -17,6 +17,82 @@ public interface ProjectJSONJavaTests
                 test.assertNull(projectJSONJava.getMaximumWarnings());
                 test.assertEqual(Iterable.create(), projectJSONJava.getSourceFiles());
                 test.assertEqual(Iterable.create(), projectJSONJava.getDependencies());
+            });
+
+            runner.testGroup("create(JSONObject)", () ->
+            {
+                runner.test("with null", (Test test) ->
+                {
+                    test.assertThrows(() -> ProjectJSONJava.create(null),
+                        new PreConditionFailure("json cannot be null."));
+                });
+
+                final Action2<JSONObject,ProjectJSONJava> createTest = (JSONObject json, ProjectJSONJava expected) ->
+                {
+                    runner.test("with " + Strings.escapeAndQuote(json), (Test test) ->
+                    {
+                        test.assertEqual(expected, ProjectJSONJava.create(json));
+                    });
+                };
+
+                createTest.run(
+                    JSONObject.create(),
+                    ProjectJSONJava.create());
+                createTest.run(
+                    JSONObject.create()
+                        .setString("mainClass", "a"),
+                    ProjectJSONJava.create()
+                        .setMainClass("a"));
+                createTest.run(
+                    JSONObject.create()
+                        .setString("shortcutName", "b"),
+                    ProjectJSONJava.create()
+                        .setShortcutName("b"));
+                createTest.run(
+                    JSONObject.create()
+                        .setString("version", "c"),
+                    ProjectJSONJava.create()
+                        .setVersion("c"));
+                createTest.run(
+                    JSONObject.create()
+                        .setNumber("maximumErrors", 20),
+                    ProjectJSONJava.create()
+                        .setMaximumErrors(20));
+                createTest.run(
+                    JSONObject.create()
+                        .setNumber("maximumErrors", -1),
+                    ProjectJSONJava.create()
+                        .setMaximumErrors(-1));
+                createTest.run(
+                    JSONObject.create()
+                        .setNumber("maximumWarnings", 30),
+                    ProjectJSONJava.create()
+                        .setMaximumWarnings(30));
+                createTest.run(
+                    JSONObject.create()
+                        .setNumber("maximumWarnings", -2),
+                    ProjectJSONJava.create()
+                        .setMaximumWarnings(-2));
+                createTest.run(
+                    JSONObject.create()
+                        .setArray("sourceFiles", JSONArray.create()),
+                    ProjectJSONJava.create()
+                        .setSourceFiles());
+                createTest.run(
+                    JSONObject.create()
+                        .setString("sourceFiles", "*.java"),
+                    ProjectJSONJava.create()
+                        .setSourceFiles(PathPattern.parse("*.java")));
+                createTest.run(
+                    JSONObject.create()
+                        .setArray("dependencies", JSONArray.create()
+                            .add(JSONObject.create()
+                                .setString("publisher", "a")
+                                .setString("project", "b")
+                                .setString("version", "c"))),
+                    ProjectJSONJava.create()
+                        .setDependencies(Iterable.create(
+                            ProjectSignature.create("a", "b", "c"))));
             });
 
             runner.testGroup("setMainClass(String)", () ->
@@ -695,448 +771,6 @@ public interface ProjectJSONJavaTests
                             .set(ProjectSignature.create("a", "b", "1"), Iterable.create()),
                         projectJSONJava.getTransitiveDependencyPaths(qubFolder));
                 });
-            });
-
-            runner.testGroup("equals(Object)", () ->
-            {
-                final Action3<ProjectJSONJava,Object,Boolean> equalsTest = (ProjectJSONJava projectJSONJava, Object rhs, Boolean expected) ->
-                {
-                    runner.test("with " + projectJSONJava + " and " + rhs, (Test test) ->
-                    {
-                        test.assertEqual(expected, projectJSONJava.equals(rhs));
-                    });
-                };
-
-                equalsTest.run(
-                    ProjectJSONJava.create(),
-                    null,
-                    false);
-                equalsTest.run(
-                    ProjectJSONJava.create(),
-                    "hello",
-                    false);
-                equalsTest.run(
-                    ProjectJSONJava.create(),
-                    ProjectJSONJava.create(),
-                    true);
-                equalsTest.run(
-                    ProjectJSONJava.create()
-                        .setMainClass("a"),
-                    ProjectJSONJava.create()
-                        .setMainClass("b"),
-                    false);
-                equalsTest.run(
-                    ProjectJSONJava.create()
-                        .setShortcutName("a"),
-                    ProjectJSONJava.create()
-                        .setShortcutName("b"),
-                    false);
-                equalsTest.run(
-                    ProjectJSONJava.create()
-                        .setVersion("a"),
-                    ProjectJSONJava.create()
-                        .setVersion("b"),
-                    false);
-                equalsTest.run(
-                    ProjectJSONJava.create()
-                        .setOutputFolder("a"),
-                    ProjectJSONJava.create()
-                        .setOutputFolder("b"),
-                    false);
-                equalsTest.run(
-                    ProjectJSONJava.create()
-                        .setMaximumErrors(1),
-                    ProjectJSONJava.create()
-                        .setMaximumErrors(2),
-                    false);
-                equalsTest.run(
-                    ProjectJSONJava.create()
-                        .setMaximumWarnings(1),
-                    ProjectJSONJava.create()
-                        .setMaximumWarnings(2),
-                    false);
-                equalsTest.run(
-                    ProjectJSONJava.create()
-                        .setSourceFiles(Iterable.create(PathPattern.parse("a"))),
-                    ProjectJSONJava.create()
-                        .setSourceFiles(Iterable.create(PathPattern.parse("b"))),
-                    false);
-                equalsTest.run(
-                    ProjectJSONJava.create()
-                        .setDependencies(Iterable.create(ProjectSignature.create("a", "b", "c"))),
-                    ProjectJSONJava.create()
-                        .setDependencies(Iterable.create(ProjectSignature.create("d", "e", "f"))),
-                    false);
-            });
-
-            runner.testGroup("equals(ProjectJSONJava)", () ->
-            {
-                final Action3<ProjectJSONJava,ProjectJSONJava,Boolean> equalsTest = (ProjectJSONJava projectJSONJava, ProjectJSONJava rhs, Boolean expected) ->
-                {
-                    runner.test("with " + projectJSONJava + " and " + rhs, (Test test) ->
-                    {
-                        test.assertEqual(expected, projectJSONJava.equals(rhs));
-                    });
-                };
-
-                equalsTest.run(
-                    ProjectJSONJava.create(),
-                    null,
-                    false);
-                equalsTest.run(
-                    ProjectJSONJava.create(),
-                    ProjectJSONJava.create(),
-                    true);
-                equalsTest.run(
-                    ProjectJSONJava.create()
-                        .setMainClass("a"),
-                    ProjectJSONJava.create()
-                        .setMainClass("b"),
-                    false);
-                equalsTest.run(
-                    ProjectJSONJava.create()
-                        .setShortcutName("a"),
-                    ProjectJSONJava.create()
-                        .setShortcutName("b"),
-                    false);
-                equalsTest.run(
-                    ProjectJSONJava.create()
-                        .setVersion("a"),
-                    ProjectJSONJava.create()
-                        .setVersion("b"),
-                    false);
-                equalsTest.run(
-                    ProjectJSONJava.create()
-                        .setOutputFolder("a"),
-                    ProjectJSONJava.create()
-                        .setOutputFolder("b"),
-                    false);
-                equalsTest.run(
-                    ProjectJSONJava.create()
-                        .setMaximumErrors(1),
-                    ProjectJSONJava.create()
-                        .setMaximumErrors(2),
-                    false);
-                equalsTest.run(
-                    ProjectJSONJava.create()
-                        .setMaximumWarnings(1),
-                    ProjectJSONJava.create()
-                        .setMaximumWarnings(2),
-                    false);
-                equalsTest.run(
-                    ProjectJSONJava.create()
-                        .setSourceFiles(Iterable.create(PathPattern.parse("a"))),
-                    ProjectJSONJava.create()
-                        .setSourceFiles(Iterable.create(PathPattern.parse("b"))),
-                    false);
-                equalsTest.run(
-                    ProjectJSONJava.create()
-                        .setDependencies(Iterable.create(ProjectSignature.create("a", "b", "c"))),
-                    ProjectJSONJava.create()
-                        .setDependencies(Iterable.create(ProjectSignature.create("d", "e", "f"))),
-                    false);
-            });
-
-            runner.testGroup("toString()", () ->
-            {
-                final Action2<ProjectJSONJava,String> toStringTest = (ProjectJSONJava projectJSONJava, String expected) ->
-                {
-                    runner.test("with " + projectJSONJava, (Test test) ->
-                    {
-                        test.assertEqual(expected, projectJSONJava.toString());
-                    });
-                };
-
-                toStringTest.run(
-                    ProjectJSONJava.create(),
-                    "{}");
-                toStringTest.run(
-                    ProjectJSONJava.create()
-                        .setMainClass("a"),
-                    "{\"mainClass\":\"a\"}");
-                toStringTest.run(
-                    ProjectJSONJava.create()
-                        .setShortcutName("b"),
-                    "{\"shortcutName\":\"b\"}");
-                toStringTest.run(
-                    ProjectJSONJava.create()
-                        .setVersion("c"),
-                    "{\"version\":\"c\"}");
-                toStringTest.run(
-                    ProjectJSONJava.create()
-                        .setMaximumErrors(20),
-                    "{\"maximumErrors\":20}");
-                toStringTest.run(
-                    ProjectJSONJava.create()
-                        .setMaximumWarnings(30),
-                    "{\"maximumWarnings\":30}");
-                toStringTest.run(
-                    ProjectJSONJava.create()
-                        .setSourceFiles(Iterable.create()),
-                    "{\"sourceFiles\":[]}");
-                toStringTest.run(
-                    ProjectJSONJava.create()
-                        .setSourceFiles(Iterable.create(
-                            PathPattern.parse("*.java"))),
-                    "{\"sourceFiles\":[\"*.java\"]}");
-                toStringTest.run(
-                    ProjectJSONJava.create()
-                        .setDependencies(Iterable.create()),
-                    "{\"dependencies\":[]}");
-                toStringTest.run(
-                    ProjectJSONJava.create()
-                        .setDependencies(Iterable.create(
-                            ProjectSignature.create("a", "b", "c"))),
-                    "{\"dependencies\":[{\"publisher\":\"a\",\"project\":\"b\",\"version\":\"c\"}]}");
-            });
-
-            runner.testGroup("toString(JSONFormat)", () ->
-            {
-                final Action3<ProjectJSONJava,JSONFormat,String> toStringTest = (ProjectJSONJava projectJSONJava, JSONFormat format, String expected) ->
-                {
-                    runner.test("with " + projectJSONJava, (Test test) ->
-                    {
-                        test.assertEqual(expected, projectJSONJava.toString(format));
-                    });
-                };
-
-                toStringTest.run(
-                    ProjectJSONJava.create(),
-                    JSONFormat.consise,
-                    "{}");
-                toStringTest.run(
-                    ProjectJSONJava.create()
-                        .setMainClass("a"),
-                    JSONFormat.consise,
-                    "{\"mainClass\":\"a\"}");
-                toStringTest.run(
-                    ProjectJSONJava.create()
-                        .setShortcutName("b"),
-                    JSONFormat.consise,
-                    "{\"shortcutName\":\"b\"}");
-                toStringTest.run(
-                    ProjectJSONJava.create()
-                        .setVersion("c"),
-                    JSONFormat.consise,
-                    "{\"version\":\"c\"}");
-                toStringTest.run(
-                    ProjectJSONJava.create()
-                        .setMaximumErrors(20),
-                    JSONFormat.consise,
-                    "{\"maximumErrors\":20}");
-                toStringTest.run(
-                    ProjectJSONJava.create()
-                        .setMaximumWarnings(30),
-                    JSONFormat.consise,
-                    "{\"maximumWarnings\":30}");
-                toStringTest.run(
-                    ProjectJSONJava.create()
-                        .setSourceFiles(Iterable.create()),
-                    JSONFormat.consise,
-                    "{\"sourceFiles\":[]}");
-                toStringTest.run(
-                    ProjectJSONJava.create()
-                        .setSourceFiles(Iterable.create(
-                            PathPattern.parse("*.java"))),
-                    JSONFormat.consise,
-                    "{\"sourceFiles\":[\"*.java\"]}");
-                toStringTest.run(
-                    ProjectJSONJava.create()
-                        .setDependencies(Iterable.create()),
-                    JSONFormat.consise,
-                    "{\"dependencies\":[]}");
-                toStringTest.run(
-                    ProjectJSONJava.create()
-                        .setDependencies(Iterable.create(
-                            ProjectSignature.create("a", "b", "c"))),
-                    JSONFormat.consise,
-                    "{\"dependencies\":[{\"publisher\":\"a\",\"project\":\"b\",\"version\":\"c\"}]}");
-
-                toStringTest.run(
-                    ProjectJSONJava.create(),
-                    JSONFormat.pretty,
-                    "{}");
-                toStringTest.run(
-                    ProjectJSONJava.create()
-                        .setMainClass("a"),
-                    JSONFormat.pretty,
-                    "{\n  \"mainClass\": \"a\"\n}");
-                toStringTest.run(
-                    ProjectJSONJava.create()
-                        .setShortcutName("b"),
-                    JSONFormat.pretty,
-                    "{\n  \"shortcutName\": \"b\"\n}");
-                toStringTest.run(
-                    ProjectJSONJava.create()
-                        .setVersion("c"),
-                    JSONFormat.pretty,
-                    "{\n  \"version\": \"c\"\n}");
-                toStringTest.run(
-                    ProjectJSONJava.create()
-                        .setMaximumErrors(20),
-                    JSONFormat.pretty,
-                    "{\n  \"maximumErrors\": 20\n}");
-                toStringTest.run(
-                    ProjectJSONJava.create()
-                        .setMaximumWarnings(30),
-                    JSONFormat.pretty,
-                    "{\n  \"maximumWarnings\": 30\n}");
-                toStringTest.run(
-                    ProjectJSONJava.create()
-                        .setSourceFiles(Iterable.create()),
-                    JSONFormat.pretty,
-                    "{\n  \"sourceFiles\": []\n}");
-                toStringTest.run(
-                    ProjectJSONJava.create()
-                        .setSourceFiles(Iterable.create(
-                            PathPattern.parse("*.java"))),
-                    JSONFormat.pretty,
-                    "{\n  \"sourceFiles\": [\n    \"*.java\"\n  ]\n}");
-                toStringTest.run(
-                    ProjectJSONJava.create()
-                        .setDependencies(Iterable.create()),
-                    JSONFormat.pretty,
-                    "{\n  \"dependencies\": []\n}");
-                toStringTest.run(
-                    ProjectJSONJava.create()
-                        .setDependencies(Iterable.create(
-                            ProjectSignature.create("a", "b", "c"))),
-                    JSONFormat.pretty,
-                    "{\n  \"dependencies\": [\n    {\n      \"publisher\": \"a\",\n      \"project\": \"b\",\n      \"version\": \"c\"\n    }\n  ]\n}");
-            });
-
-            runner.testGroup("create(JSONObject)", () ->
-            {
-                runner.test("with null", (Test test) ->
-                {
-                    test.assertThrows(() -> ProjectJSONJava.create(null),
-                        new PreConditionFailure("jsonObject cannot be null."));
-                });
-
-                final Action2<String,ProjectJSONJava> parseTest = (String jsonString, ProjectJSONJava expected) ->
-                {
-                    runner.test("with " + Strings.escapeAndQuote(jsonString), (Test test) ->
-                    {
-                        test.assertEqual(expected, ProjectJSONJava.create(JSON.parseObject(jsonString).await()));
-                    });
-                };
-
-                parseTest.run(
-                    "{}",
-                    ProjectJSONJava.create());
-                parseTest.run(
-                    "{\"mainClass\":\"a\"}",
-                    ProjectJSONJava.create()
-                        .setMainClass("a"));
-                parseTest.run(
-                    "{\"mainClass\":false}",
-                    ProjectJSONJava.create(JSONObject.create()
-                        .setBoolean("mainClass", false)));
-                parseTest.run(
-                    "{\"shortcutName\":\"b\"}",
-                    ProjectJSONJava.create()
-                        .setShortcutName("b"));
-                parseTest.run(
-                    "{\"shortcutName\":50}",
-                    ProjectJSONJava.create(JSONObject.create()
-                        .setNumber("shortcutName", 50)));
-                parseTest.run(
-                    "{\"version\":\"c\"}",
-                    ProjectJSONJava.create()
-                        .setVersion("c"));
-                parseTest.run(
-                    "{\"version\":200}",
-                    ProjectJSONJava.create(JSONObject.create()
-                        .setNumber("version", 200)));
-                parseTest.run(
-                    "{\"version\":200.1}",
-                    ProjectJSONJava.create(JSONObject.create()
-                        .setNumber("version", 200.1)));
-                parseTest.run(
-                    "{\"version\":null}",
-                    ProjectJSONJava.create(JSONObject.create()
-                        .setNull("version")));
-                parseTest.run(
-                    "{\"maximumErrors\":20}",
-                    ProjectJSONJava.create()
-                        .setMaximumErrors(20));
-                parseTest.run(
-                    "{\"maximumErrors\":-1}",
-                    ProjectJSONJava.create()
-                        .setMaximumErrors(-1));
-                parseTest.run(
-                    "{\"maximumErrors\":\"hello\"}",
-                    ProjectJSONJava.create(JSONObject.create()
-                        .setString("maximumErrors", "hello")));
-                parseTest.run(
-                    "{\"maximumWarnings\":30}",
-                    ProjectJSONJava.create()
-                        .setMaximumWarnings(30));
-                parseTest.run(
-                    "{\"maximumWarnings\":-2}",
-                    ProjectJSONJava.create()
-                        .setMaximumWarnings(-2));
-                parseTest.run(
-                    "{\"maximumWarnings\":null}",
-                    ProjectJSONJava.create(JSONObject.create()
-                        .setNull("maximumWarnings")));
-                parseTest.run(
-                    "{\"sourceFiles\":[\"*.java\"]}",
-                    ProjectJSONJava.create()
-                        .setSourceFiles(Iterable.create(PathPattern.parse("*.java"))));
-                parseTest.run(
-                    "{\"sourceFiles\":[\"\"]}",
-                    ProjectJSONJava.create(JSONObject.create()
-                        .setArray("sourceFiles", Iterable.create(JSONString.get("")))));
-                parseTest.run(
-                    "{\"sourceFiles\":[null]}",
-                    ProjectJSONJava.create(JSONObject.create()
-                        .setArray("sourceFiles", Iterable.create(JSONNull.segment))));
-                parseTest.run(
-                    "{\"sourceFiles\":[\"*.java\",{}]}",
-                    ProjectJSONJava.create(JSONObject.create()
-                        .setArray("sourceFiles", Iterable.create(
-                            JSONString.get("*.java"),
-                            JSONObject.create()))));
-                parseTest.run(
-                    "{\"sourceFiles\":\"*.java\"}",
-                    ProjectJSONJava.create().setSourceFiles(PathPattern.parse("*.java")));
-                parseTest.run(
-                    "{\"sourceFiles\":\"\"}",
-                    ProjectJSONJava.create(JSONObject.create()
-                        .setString("sourceFiles", "")));
-                parseTest.run(
-                    "{\"sourceFiles\":null}",
-                    ProjectJSONJava.create(JSONObject.create()
-                        .setNull("sourceFiles")));
-                parseTest.run(
-                    "{\"dependencies\":[{\"publisher\":\"a\",\"project\":\"b\",\"version\":\"c\"}]}",
-                    ProjectJSONJava.create()
-                        .setDependencies(Iterable.create(
-                            ProjectSignature.create("a", "b", "c"))));
-                parseTest.run(
-                    "{\"dependencies\":[\"a/b@c\"]}",
-                    ProjectJSONJava.create(JSONObject.create()
-                        .setArray("dependencies", Iterable.create(
-                            JSONString.get("a/b@c")))));
-                parseTest.run(
-                    "{\"dependencies\":[\"a/b@c\",{\"publisher\":\"d\",\"project\":\"e\",\"version\":\"f\"}]}",
-                    ProjectJSONJava.create(JSONObject.create()
-                        .setArray("dependencies", Iterable.create(
-                            JSONString.get("a/b@c"),
-                            JSONObject.create()
-                                .setString("publisher", "d")
-                                .setString("project", "e")
-                                .setString("version", "f")))));
-                parseTest.run(
-                    "{\"dependencies\":[500]}",
-                    ProjectJSONJava.create(JSONObject.create()
-                        .setArray("dependencies", Iterable.create(
-                            JSONNumber.get(500)))));
-                parseTest.run(
-                    "{\"dependencies\":false}",
-                    ProjectJSONJava.create(JSONObject.create()
-                        .setBoolean("dependencies", false)));
             });
         });
     }

@@ -6,13 +6,54 @@ public interface ProjectJSONTests
     {
         runner.testGroup(ProjectJSON.class, () ->
         {
-            runner.test("constructor()", (Test test) ->
+            runner.test("create()", (Test test) ->
             {
                 final ProjectJSON projectJSON = ProjectJSON.create();
                 test.assertNull(projectJSON.getPublisher());
                 test.assertNull(projectJSON.getProject());
                 test.assertNull(projectJSON.getVersion());
                 test.assertNull(projectJSON.getJava());
+            });
+
+            runner.testGroup("create(JSONObject)", () ->
+            {
+                runner.test("with null", (Test test) ->
+                {
+                    test.assertThrows(() -> ProjectJSON.create(null),
+                        new PreConditionFailure("json cannot be null."));
+                });
+
+                final Action2<JSONObject,ProjectJSON> parseTest = (JSONObject json, ProjectJSON expected) ->
+                {
+                    runner.test("with " + json, (Test test) ->
+                    {
+                        test.assertEqual(expected, ProjectJSON.create(json));
+                    });
+                };
+
+                parseTest.run(
+                    JSONObject.create(),
+                    ProjectJSON.create());
+                parseTest.run(
+                    JSONObject.create()
+                        .setString("publisher", "a"),
+                    ProjectJSON.create()
+                        .setPublisher("a"));
+                parseTest.run(
+                    JSONObject.create()
+                        .setString("project", "b"),
+                    ProjectJSON.create()
+                        .setProject("b"));
+                parseTest.run(
+                    JSONObject.create()
+                        .setString("version", "c"),
+                    ProjectJSON.create()
+                        .setVersion("c"));
+                parseTest.run(
+                    JSONObject.create()
+                        .setObject("java", JSONObject.create()),
+                    ProjectJSON.create()
+                        .setJava(ProjectJSONJava.create()));
             });
 
             runner.testGroup("setPublisher(String)", () ->
@@ -446,68 +487,6 @@ public interface ProjectJSONTests
                     runner.test("with " + Strings.escapeAndQuote(text), (Test test) ->
                     {
                         test.assertEqual(expected, ProjectJSON.parse(Strings.iterate(text)).await());
-                    });
-                };
-
-                parseTest.run(
-                    "{}",
-                    ProjectJSON.create());
-                parseTest.run(
-                    "{\"publisher\":\"a\"}",
-                    ProjectJSON.create().setPublisher("a"));
-                parseTest.run(
-                    "{\"publisher\":5}",
-                    ProjectJSON.create(JSONObject.create()
-                        .setNumber("publisher", 5)));
-                parseTest.run(
-                    "{\"project\":\"b\"}",
-                    ProjectJSON.create().setProject("b"));
-                parseTest.run(
-                    "{\"project\":true}",
-                    ProjectJSON.create(JSONObject.create()
-                        .setBoolean("project", true)));
-                parseTest.run(
-                    "{\"version\":\"c\"}",
-                    ProjectJSON.create().setVersion("c"));
-                parseTest.run(
-                    "{\"version\":10}",
-                    ProjectJSON.create(JSONObject.create()
-                        .setNumber("version", 10)));
-                parseTest.run(
-                    "{\"version\":[]}",
-                    ProjectJSON.create(JSONObject.create()
-                        .setArray("version", Iterable.create())));
-                parseTest.run(
-                    "{\"java\":{}}",
-                    ProjectJSON.create()
-                        .setJava(ProjectJSONJava.create()));
-                parseTest.run(
-                    "{\"java\":[]}",
-                    ProjectJSON.create(JSONObject.create()
-                        .setArray("java", Iterable.create())));
-                parseTest.run(
-                    "{\"java\":true}",
-                    ProjectJSON.create(JSONObject.create()
-                        .setBoolean("java", true)));
-                parseTest.run(
-                    "{\"java\":false}",
-                    ProjectJSON.create(JSONObject.create()
-                        .setBoolean("java", false)));
-            });
-
-            runner.testGroup("create(JSONObject)", () ->
-            {
-                runner.test("with null", (Test test) ->
-                {
-                    test.assertThrows(() -> ProjectJSON.create((JSONObject)null),
-                        new PreConditionFailure("rootObject cannot be null."));
-                });
-
-                final Action2<String,ProjectJSON> parseTest = (String text, ProjectJSON expected) ->
-                {
-                    runner.test("with " + Strings.escapeAndQuote(text), (Test test) ->
-                    {
-                        test.assertEqual(expected, ProjectJSON.create(JSON.parseObject(text).await()));
                     });
                 };
 
