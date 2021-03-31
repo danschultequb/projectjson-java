@@ -56,6 +56,133 @@ public interface ProjectJSONTests
                         .setJava(ProjectJSONJava.create()));
             });
 
+            runner.testGroup("setSchema(String)", () ->
+            {
+                final Action2<String,Throwable> setSchemaErrorTest = (String schema, Throwable expected) ->
+                {
+                    runner.test("with " + Strings.escapeAndQuote(schema), (Test test) ->
+                    {
+                        final ProjectJSON projectJSON = ProjectJSON.create();
+                        test.assertThrows(() -> projectJSON.setSchema(schema), expected);
+                        test.assertNull(projectJSON.getSchema());
+                    });
+                };
+
+                setSchemaErrorTest.run(null, new PreConditionFailure("schema cannot be null."));
+                setSchemaErrorTest.run("", new PreConditionFailure("schema cannot be empty."));
+
+                final Action1<String> setSchemaTest = (String schema) ->
+                {
+                    runner.test("with " + Strings.escapeAndQuote(schema), (Test test) ->
+                    {
+                        final ProjectJSON projectJSON = ProjectJSON.create();
+                        final ProjectJSON setSchemaResult = projectJSON.setSchema(schema);
+                        test.assertSame(projectJSON, setSchemaResult);
+                        test.assertEqual(schema, projectJSON.getSchema());
+                    });
+                };
+
+                setSchemaTest.run("apples");
+                setSchemaTest.run("mangoes");
+                setSchemaTest.run("hello world");
+            });
+
+            runner.testGroup("setSchema(Path)", () ->
+            {
+                final Action2<Path,Throwable> setSchemaErrorTest = (Path schemaPath, Throwable expected) ->
+                {
+                    runner.test("with " + Strings.escapeAndQuote(schemaPath), (Test test) ->
+                    {
+                        final ProjectJSON projectJSON = ProjectJSON.create();
+                        test.assertThrows(() -> projectJSON.setSchema(schemaPath), expected);
+                        test.assertNull(projectJSON.getSchema());
+                    });
+                };
+
+                setSchemaErrorTest.run(null, new PreConditionFailure("schemaPath cannot be null."));
+                setSchemaErrorTest.run(Path.parse("test/"), new PreConditionFailure("schemaPath.endsWith('/') || schemaPath.endsWith('\\') cannot be true."));
+                setSchemaErrorTest.run(Path.parse("/test/"), new PreConditionFailure("schemaPath.endsWith('/') || schemaPath.endsWith('\\') cannot be true."));
+                setSchemaErrorTest.run(Path.parse("test\\"), new PreConditionFailure("schemaPath.endsWith('/') || schemaPath.endsWith('\\') cannot be true."));
+                setSchemaErrorTest.run(Path.parse("\\test\\"), new PreConditionFailure("schemaPath.endsWith('/') || schemaPath.endsWith('\\') cannot be true."));
+
+                final Action1<Path> setSchemaTest = (Path schemaPath) ->
+                {
+                    runner.test("with " + Strings.escapeAndQuote(schemaPath), (Test test) ->
+                    {
+                        final ProjectJSON projectJSON = ProjectJSON.create();
+                        final ProjectJSON setSchemaResult = projectJSON.setSchema(schemaPath);
+                        test.assertSame(projectJSON, setSchemaResult);
+                        test.assertEqual(schemaPath.toString(), projectJSON.getSchema());
+                    });
+                };
+
+                setSchemaTest.run(Path.parse("apples"));
+                setSchemaTest.run(Path.parse("mangoes"));
+                setSchemaTest.run(Path.parse("hello world"));
+                setSchemaTest.run(Path.parse("folder/file"));
+                setSchemaTest.run(Path.parse("/folder/file"));
+            });
+
+            runner.testGroup("setSchema(File)", () ->
+            {
+                final Action2<File,Throwable> setSchemaErrorTest = (File schemaFile, Throwable expected) ->
+                {
+                    runner.test("with " + Strings.escapeAndQuote(schemaFile), (Test test) ->
+                    {
+                        final ProjectJSON projectJSON = ProjectJSON.create();
+                        test.assertThrows(() -> projectJSON.setSchema(schemaFile), expected);
+                        test.assertNull(projectJSON.getSchema());
+                    });
+                };
+
+                setSchemaErrorTest.run(null, new PreConditionFailure("schemaFile cannot be null."));
+
+                final Action1<String> setSchemaTest = (String schemaFilePath) ->
+                {
+                    runner.test("with " + Strings.escapeAndQuote(schemaFilePath), (Test test) ->
+                    {
+                        final InMemoryFileSystem fileSystem = InMemoryFileSystem.create();
+                        fileSystem.createRoot("/").await();
+                        final File schemaFile = fileSystem.getFile(schemaFilePath).await();
+
+                        final ProjectJSON projectJSON = ProjectJSON.create();
+                        final ProjectJSON setSchemaResult = projectJSON.setSchema(schemaFile);
+                        test.assertSame(projectJSON, setSchemaResult);
+                        test.assertEqual(schemaFile.toString(), projectJSON.getSchema());
+                    });
+                };
+
+                setSchemaTest.run("/folder/file");
+            });
+
+            runner.testGroup("setSchema(URL)", () ->
+            {
+                final Action2<URL,Throwable> setSchemaErrorTest = (URL schemaUrl, Throwable expected) ->
+                {
+                    runner.test("with " + Strings.escapeAndQuote(schemaUrl), (Test test) ->
+                    {
+                        final ProjectJSON projectJSON = ProjectJSON.create();
+                        test.assertThrows(() -> projectJSON.setSchema(schemaUrl), expected);
+                        test.assertNull(projectJSON.getSchema());
+                    });
+                };
+
+                setSchemaErrorTest.run(null, new PreConditionFailure("schemaUrl cannot be null."));
+
+                final Action1<URL> setSchemaTest = (URL schemaUrl) ->
+                {
+                    runner.test("with " + Strings.escapeAndQuote(schemaUrl), (Test test) ->
+                    {
+                        final ProjectJSON projectJSON = ProjectJSON.create();
+                        final ProjectJSON setSchemaResult = projectJSON.setSchema(schemaUrl);
+                        test.assertSame(projectJSON, setSchemaResult);
+                        test.assertEqual(schemaUrl.toString(), projectJSON.getSchema());
+                    });
+                };
+
+                setSchemaTest.run(URL.parse("https://www.example.com/").await());
+            });
+
             runner.testGroup("setPublisher(String)", () ->
             {
                 final Action2<String,Throwable> setPublisherErrorTest = (String publisher, Throwable expected) ->

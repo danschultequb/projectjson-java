@@ -2,6 +2,7 @@ package qub;
 
 public class ProjectJSON extends JSONObjectWrapperBase
 {
+    private static final String schemaPropertyName = "$schema";
     private static final String publisherPropertyName = "publisher";
     private static final String projectPropertyName = "project";
     private static final String versionPropertyName = "version";
@@ -125,6 +126,64 @@ public class ProjectJSON extends JSONObjectWrapperBase
 
         this.json.setString(propertyName, propertyValue);
         return this;
+    }
+
+    /**
+     * Get the $schema property value.
+     * @return The $schema property value.
+     */
+    public String getSchema()
+    {
+        return this.getString(ProjectJSON.schemaPropertyName);
+    }
+
+    /**
+     * Set the $schema property value.
+     * @param schema The schema property value.
+     * @return This object for method chaining.
+     */
+    public ProjectJSON setSchema(String schema)
+    {
+        PreCondition.assertNotNullAndNotEmpty(schema, "schema");
+
+        return this.setString(ProjectJSON.schemaPropertyName, schema);
+    }
+
+    /**
+     * Set the $schema property value.
+     * @param schemaPath The schema property value.
+     * @return This object for method chaining.
+     */
+    public ProjectJSON setSchema(Path schemaPath)
+    {
+        PreCondition.assertNotNull(schemaPath, "schemaPath");
+        PreCondition.assertFalse(schemaPath.endsWith('/') || schemaPath.endsWith('\\'), "schemaPath.endsWith('/') || schemaPath.endsWith('\\')");
+
+        return this.setSchema(schemaPath.toString());
+    }
+
+    /**
+     * Set the $schema property value.
+     * @param schemaFile The schema property value.
+     * @return This object for method chaining.
+     */
+    public ProjectJSON setSchema(File schemaFile)
+    {
+        PreCondition.assertNotNull(schemaFile, "schemaFile");
+
+        return this.setSchema(schemaFile.toString());
+    }
+
+    /**
+     * Set the $schema property value.
+     * @param schemaUrl The schema property value.
+     * @return This object for method chaining.
+     */
+    public ProjectJSON setSchema(URL schemaUrl)
+    {
+        PreCondition.assertNotNull(schemaUrl, "schemaUrl");
+
+        return this.setSchema(schemaUrl.toString());
     }
 
     /**
