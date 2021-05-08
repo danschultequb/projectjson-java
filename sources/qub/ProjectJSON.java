@@ -159,7 +159,7 @@ public class ProjectJSON extends JSONObjectWrapperBase
         PreCondition.assertNotNull(schemaPath, "schemaPath");
         PreCondition.assertFalse(schemaPath.endsWith('/') || schemaPath.endsWith('\\'), "schemaPath.endsWith('/') || schemaPath.endsWith('\\')");
 
-        return this.setSchema(schemaPath.toString());
+        return this.setSchema("file:///" + schemaPath.toString());
     }
 
     /**
@@ -171,7 +171,7 @@ public class ProjectJSON extends JSONObjectWrapperBase
     {
         PreCondition.assertNotNull(schemaFile, "schemaFile");
 
-        return this.setSchema(schemaFile.toString());
+        return this.setSchema(schemaFile.getPath());
     }
 
     /**

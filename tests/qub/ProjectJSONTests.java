@@ -112,7 +112,7 @@ public interface ProjectJSONTests
                         final ProjectJSON projectJSON = ProjectJSON.create();
                         final ProjectJSON setSchemaResult = projectJSON.setSchema(schemaPath);
                         test.assertSame(projectJSON, setSchemaResult);
-                        test.assertEqual(schemaPath.toString(), projectJSON.getSchema());
+                        test.assertEqual("file:///" + schemaPath.toString(), projectJSON.getSchema());
                     });
                 };
 
@@ -148,7 +148,7 @@ public interface ProjectJSONTests
                         final ProjectJSON projectJSON = ProjectJSON.create();
                         final ProjectJSON setSchemaResult = projectJSON.setSchema(schemaFile);
                         test.assertSame(projectJSON, setSchemaResult);
-                        test.assertEqual(schemaFile.toString(), projectJSON.getSchema());
+                        test.assertEqual("file:///" + schemaFile.toString(), projectJSON.getSchema());
                     });
                 };
 
