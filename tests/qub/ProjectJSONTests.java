@@ -12,7 +12,6 @@ public interface ProjectJSONTests
                 test.assertNull(projectJSON.getPublisher());
                 test.assertNull(projectJSON.getProject());
                 test.assertNull(projectJSON.getVersion());
-                test.assertNull(projectJSON.getJava());
             });
 
             runner.testGroup("create(JSONObject)", () ->
@@ -23,7 +22,7 @@ public interface ProjectJSONTests
                         new PreConditionFailure("json cannot be null."));
                 });
 
-                final Action2<JSONObject,ProjectJSON> parseTest = (JSONObject json, ProjectJSON expected) ->
+                final Action2<JSONObject, ProjectJSON> parseTest = (JSONObject json, ProjectJSON expected) ->
                 {
                     runner.test("with " + json, (Test test) ->
                     {
@@ -52,333 +51,8 @@ public interface ProjectJSONTests
                 parseTest.run(
                     JSONObject.create()
                         .setObject("java", JSONObject.create()),
-                    ProjectJSON.create()
-                        .setJava(ProjectJSONJava.create()));
-            });
-
-            runner.testGroup("setSchema(String)", () ->
-            {
-                final Action2<String,Throwable> setSchemaErrorTest = (String schema, Throwable expected) ->
-                {
-                    runner.test("with " + Strings.escapeAndQuote(schema), (Test test) ->
-                    {
-                        final ProjectJSON projectJSON = ProjectJSON.create();
-                        test.assertThrows(() -> projectJSON.setSchema(schema), expected);
-                        test.assertNull(projectJSON.getSchema());
-                    });
-                };
-
-                setSchemaErrorTest.run(null, new PreConditionFailure("schema cannot be null."));
-                setSchemaErrorTest.run("", new PreConditionFailure("schema cannot be empty."));
-
-                final Action1<String> setSchemaTest = (String schema) ->
-                {
-                    runner.test("with " + Strings.escapeAndQuote(schema), (Test test) ->
-                    {
-                        final ProjectJSON projectJSON = ProjectJSON.create();
-                        final ProjectJSON setSchemaResult = projectJSON.setSchema(schema);
-                        test.assertSame(projectJSON, setSchemaResult);
-                        test.assertEqual(schema, projectJSON.getSchema());
-                    });
-                };
-
-                setSchemaTest.run("apples");
-                setSchemaTest.run("mangoes");
-                setSchemaTest.run("hello world");
-            });
-
-            runner.testGroup("setSchema(Path)", () ->
-            {
-                final Action2<Path,Throwable> setSchemaErrorTest = (Path schemaPath, Throwable expected) ->
-                {
-                    runner.test("with " + Strings.escapeAndQuote(schemaPath), (Test test) ->
-                    {
-                        final ProjectJSON projectJSON = ProjectJSON.create();
-                        test.assertThrows(() -> projectJSON.setSchema(schemaPath), expected);
-                        test.assertNull(projectJSON.getSchema());
-                    });
-                };
-
-                setSchemaErrorTest.run(null, new PreConditionFailure("schemaPath cannot be null."));
-                setSchemaErrorTest.run(Path.parse("test/"), new PreConditionFailure("schemaPath.endsWith('/') || schemaPath.endsWith('\\') cannot be true."));
-                setSchemaErrorTest.run(Path.parse("/test/"), new PreConditionFailure("schemaPath.endsWith('/') || schemaPath.endsWith('\\') cannot be true."));
-                setSchemaErrorTest.run(Path.parse("test\\"), new PreConditionFailure("schemaPath.endsWith('/') || schemaPath.endsWith('\\') cannot be true."));
-                setSchemaErrorTest.run(Path.parse("\\test\\"), new PreConditionFailure("schemaPath.endsWith('/') || schemaPath.endsWith('\\') cannot be true."));
-
-                final Action1<Path> setSchemaTest = (Path schemaPath) ->
-                {
-                    runner.test("with " + Strings.escapeAndQuote(schemaPath), (Test test) ->
-                    {
-                        final ProjectJSON projectJSON = ProjectJSON.create();
-                        final ProjectJSON setSchemaResult = projectJSON.setSchema(schemaPath);
-                        test.assertSame(projectJSON, setSchemaResult);
-                        test.assertEqual("file:///" + schemaPath.toString(), projectJSON.getSchema());
-                    });
-                };
-
-                setSchemaTest.run(Path.parse("apples"));
-                setSchemaTest.run(Path.parse("mangoes"));
-                setSchemaTest.run(Path.parse("hello world"));
-                setSchemaTest.run(Path.parse("folder/file"));
-                setSchemaTest.run(Path.parse("/folder/file"));
-            });
-
-            runner.testGroup("setSchema(File)", () ->
-            {
-                final Action2<File,Throwable> setSchemaErrorTest = (File schemaFile, Throwable expected) ->
-                {
-                    runner.test("with " + Strings.escapeAndQuote(schemaFile), (Test test) ->
-                    {
-                        final ProjectJSON projectJSON = ProjectJSON.create();
-                        test.assertThrows(() -> projectJSON.setSchema(schemaFile), expected);
-                        test.assertNull(projectJSON.getSchema());
-                    });
-                };
-
-                setSchemaErrorTest.run(null, new PreConditionFailure("schemaFile cannot be null."));
-
-                final Action1<String> setSchemaTest = (String schemaFilePath) ->
-                {
-                    runner.test("with " + Strings.escapeAndQuote(schemaFilePath), (Test test) ->
-                    {
-                        final InMemoryFileSystem fileSystem = InMemoryFileSystem.create();
-                        fileSystem.createRoot("/").await();
-                        final File schemaFile = fileSystem.getFile(schemaFilePath).await();
-
-                        final ProjectJSON projectJSON = ProjectJSON.create();
-                        final ProjectJSON setSchemaResult = projectJSON.setSchema(schemaFile);
-                        test.assertSame(projectJSON, setSchemaResult);
-                        test.assertEqual("file:///" + schemaFile.toString(), projectJSON.getSchema());
-                    });
-                };
-
-                setSchemaTest.run("/folder/file");
-            });
-
-            runner.testGroup("setSchema(URL)", () ->
-            {
-                final Action2<URL,Throwable> setSchemaErrorTest = (URL schemaUrl, Throwable expected) ->
-                {
-                    runner.test("with " + Strings.escapeAndQuote(schemaUrl), (Test test) ->
-                    {
-                        final ProjectJSON projectJSON = ProjectJSON.create();
-                        test.assertThrows(() -> projectJSON.setSchema(schemaUrl), expected);
-                        test.assertNull(projectJSON.getSchema());
-                    });
-                };
-
-                setSchemaErrorTest.run(null, new PreConditionFailure("schemaUrl cannot be null."));
-
-                final Action1<URL> setSchemaTest = (URL schemaUrl) ->
-                {
-                    runner.test("with " + Strings.escapeAndQuote(schemaUrl), (Test test) ->
-                    {
-                        final ProjectJSON projectJSON = ProjectJSON.create();
-                        final ProjectJSON setSchemaResult = projectJSON.setSchema(schemaUrl);
-                        test.assertSame(projectJSON, setSchemaResult);
-                        test.assertEqual(schemaUrl.toString(), projectJSON.getSchema());
-                    });
-                };
-
-                setSchemaTest.run(URL.parse("https://www.example.com/").await());
-            });
-
-            runner.testGroup("setPublisher(String)", () ->
-            {
-                final Action2<String,Throwable> setPublisherErrorTest = (String publisher, Throwable expected) ->
-                {
-                    runner.test("with " + Strings.escapeAndQuote(publisher), (Test test) ->
-                    {
-                        final ProjectJSON projectJSON = ProjectJSON.create();
-                        test.assertThrows(() -> projectJSON.setPublisher(publisher), expected);
-                        test.assertNull(projectJSON.getPublisher());
-                    });
-                };
-
-                setPublisherErrorTest.run(null, new PreConditionFailure("publisher cannot be null."));
-                setPublisherErrorTest.run("", new PreConditionFailure("publisher cannot be empty."));
-
-                final Action1<String> setPublisherTest = (String publisher) ->
-                {
-                    runner.test("with " + Strings.escapeAndQuote(publisher), (Test test) ->
-                    {
-                        final ProjectJSON projectJSON = ProjectJSON.create();
-                        test.<ProjectJSON>assertSame(projectJSON, projectJSON.setPublisher(publisher));
-                        test.assertEqual(publisher, projectJSON.getPublisher());
-                    });
-                };
-
-                setPublisherTest.run("apples");
-                setPublisherTest.run("mangoes");
-            });
-
-            runner.testGroup("setProject(String)", () ->
-            {
-                final Action2<String,Throwable> setProjectErrorTest = (String project, Throwable expected) ->
-                {
-                    runner.test("with " + Strings.escapeAndQuote(project), (Test test) ->
-                    {
-                        final ProjectJSON projectJSON = ProjectJSON.create();
-                        test.assertThrows(() -> projectJSON.setProject(project), expected);
-                        test.assertNull(projectJSON.getProject());
-                    });
-                };
-
-                setProjectErrorTest.run(null, new PreConditionFailure("project cannot be null."));
-                setProjectErrorTest.run("", new PreConditionFailure("project cannot be empty."));
-
-                final Action1<String> setProjectTest = (String project) ->
-                {
-                    runner.test("with " + Strings.escapeAndQuote(project), (Test test) ->
-                    {
-                        final ProjectJSON projectJSON = ProjectJSON.create();
-                        test.<ProjectJSON>assertSame(projectJSON, projectJSON.setProject(project));
-                        test.assertEqual(project, projectJSON.getProject());
-                    });
-                };
-
-                setProjectTest.run("apples");
-                setProjectTest.run("bananas");
-            });
-
-            runner.testGroup("setVersion(String)", () ->
-            {
-                final Action2<String,Throwable> setVersionErrorTest = (String version, Throwable expected) ->
-                {
-                    runner.test("with " + Strings.escapeAndQuote(version), (Test test) ->
-                    {
-                        final ProjectJSON projectJSON = ProjectJSON.create();
-                        test.assertThrows(() -> projectJSON.setVersion(version), expected);
-                        test.assertNull(projectJSON.getVersion());
-                    });
-                };
-
-                setVersionErrorTest.run(null, new PreConditionFailure("version cannot be null."));
-                setVersionErrorTest.run("", new PreConditionFailure("version cannot be empty."));
-
-                final Action1<String> setVersionTest = (String version) ->
-                {
-                    runner.test("with " + Strings.escapeAndQuote(version), (Test test) ->
-                    {
-                        final ProjectJSON projectJSON = ProjectJSON.create();
-                        final ProjectJSON setVersionResult = projectJSON.setVersion(version);
-                        test.assertSame(projectJSON, setVersionResult);
-                        test.assertEqual(version, projectJSON.getVersion().toString());
-                    });
-                };
-
-                setVersionTest.run("apples");
-                setVersionTest.run("apricots");
-            });
-
-            runner.testGroup("setVersion(VersionNumber)", () ->
-            {
-                final Action2<VersionNumber,Throwable> setVersionErrorTest = (VersionNumber version, Throwable expected) ->
-                {
-                    runner.test("with " + Strings.escapeAndQuote(version), (Test test) ->
-                    {
-                        final ProjectJSON projectJSON = ProjectJSON.create();
-                        test.assertThrows(() -> projectJSON.setVersion(version), expected);
-                        test.assertNull(projectJSON.getVersion());
-                    });
-                };
-
-                setVersionErrorTest.run(null, new PreConditionFailure("version cannot be null."));
-                setVersionErrorTest.run(VersionNumber.create(), new PreConditionFailure("version cannot be empty."));
-
-                final Action1<VersionNumber> setVersionTest = (VersionNumber version) ->
-                {
-                    runner.test("with " + Strings.escapeAndQuote(version), (Test test) ->
-                    {
-                        final ProjectJSON projectJSON = ProjectJSON.create();
-                        final ProjectJSON setVersionResult = projectJSON.setVersion(version);
-                        test.assertSame(projectJSON, setVersionResult);
-                        test.assertEqual(version, projectJSON.getVersion());
-                    });
-                };
-
-                setVersionTest.run(VersionNumber.create().addParts(1, 2, 3));
-                setVersionTest.run(VersionNumber.create().setSuffix("apricots"));
-            });
-
-            runner.testGroup("setJava()", () ->
-            {
-                runner.test("with null", (Test test) ->
-                {
-                    final ProjectJSON projectJSON = ProjectJSON.create();
-                    test.assertThrows(() -> projectJSON.setJava(null),
-                        new PreConditionFailure("java cannot be null."));
-                    test.assertNull(projectJSON.getJava());
-                });
-
-                runner.test("with non-null", (Test test) ->
-                {
-                    final ProjectJSON projectJSON = ProjectJSON.create();
-                    final ProjectJSONJava java = ProjectJSONJava.create();
-                    test.assertSame(projectJSON, projectJSON.setJava(java));
-                    test.assertEqual(java, projectJSON.getJava());
-                });
-            });
-
-            runner.testGroup("equals(Object)", () ->
-            {
-                final Action3<ProjectJSON,Object,Boolean> equalsTest = (ProjectJSON projectJson, Object rhs, Boolean expected) ->
-                {
-                    runner.test("with " + projectJson + " and " + rhs, (Test test) ->
-                    {
-                        test.assertEqual(expected, projectJson.equals(rhs));
-                    });
-                };
-
-                equalsTest.run(ProjectJSON.create(), null, false);
-                equalsTest.run(ProjectJSON.create(), "hello", false);
-                equalsTest.run(ProjectJSON.create(), ProjectJSON.create(), true);
-                equalsTest.run(
-                    ProjectJSON.create().setPublisher("a"),
-                    ProjectJSON.create().setPublisher("b"),
-                    false);
-                equalsTest.run(
-                    ProjectJSON.create().setProject("a"),
-                    ProjectJSON.create().setProject("b"),
-                    false);
-                equalsTest.run(
-                    ProjectJSON.create().setVersion("a"),
-                    ProjectJSON.create().setVersion("b"),
-                    false);
-                equalsTest.run(
-                    ProjectJSON.create().setJava(ProjectJSONJava.create()),
-                    ProjectJSON.create(),
-                    false);
-            });
-
-            runner.testGroup("equals(ProjectJSON)", () ->
-            {
-                final Action3<ProjectJSON,ProjectJSON,Boolean> equalsTest = (ProjectJSON projectJson, ProjectJSON rhs, Boolean expected) ->
-                {
-                    runner.test("with " + projectJson + " and " + rhs, (Test test) ->
-                    {
-                        test.assertEqual(expected, projectJson.equals(rhs));
-                    });
-                };
-
-                equalsTest.run(ProjectJSON.create(), null, false);
-                equalsTest.run(ProjectJSON.create(), ProjectJSON.create(), true);
-                equalsTest.run(
-                    ProjectJSON.create().setPublisher("a"),
-                    ProjectJSON.create().setPublisher("b"),
-                    false);
-                equalsTest.run(
-                    ProjectJSON.create().setProject("a"),
-                    ProjectJSON.create().setProject("b"),
-                    false);
-                equalsTest.run(
-                    ProjectJSON.create().setVersion("a"),
-                    ProjectJSON.create().setVersion("b"),
-                    false);
-                equalsTest.run(
-                    ProjectJSON.create().setJava(ProjectJSONJava.create()),
-                    ProjectJSON.create(),
-                    false);
+                    ProjectJSON.create(JSONObject.create()
+                        .setObject("java", JSONObject.create())));
             });
 
             runner.testGroup("parse(File)", () ->
@@ -398,7 +72,7 @@ public interface ProjectJSONTests
                         new FileNotFoundException("/file.txt"));
                 });
 
-                final Action2<String,ProjectJSON> parseTest = (String text, ProjectJSON expected) ->
+                final Action2<String, ProjectJSON> parseTest = (String text, ProjectJSON expected) ->
                 {
                     runner.test("with " + Strings.escapeAndQuote(text), (Test test) ->
                     {
@@ -440,8 +114,140 @@ public interface ProjectJSONTests
                         .setArray("version", Iterable.create())));
                 parseTest.run(
                     "{\"java\":{}}",
-                    ProjectJSON.create()
-                        .setJava(ProjectJSONJava.create()));
+                    ProjectJSON.create(JSONObject.create()
+                        .setObject("java", JSONObject.create())));
+                parseTest.run(
+                    "{\"java\":[]}",
+                    ProjectJSON.create(JSONObject.create()
+                        .setArray("java", Iterable.create())));
+                parseTest.run(
+                    "{\"java\":true}",
+                    ProjectJSON.create(JSONObject.create()
+                        .setBoolean("java", true)));
+                parseTest.run(
+                    "{\"java\":false}",
+                    ProjectJSON.create(JSONObject.create()
+                        .setBoolean("java", false)));
+            });
+
+            runner.testGroup("parse(ByteReadStream)", () ->
+            {
+                runner.test("with null", (Test test) ->
+                {
+                    test.assertThrows(() -> ProjectJSON.parse((ByteReadStream)null),
+                        new PreConditionFailure("bytes cannot be null."));
+                });
+
+                final Action2<String, ProjectJSON> parseTest = (String text, ProjectJSON expected) ->
+                {
+                    runner.test("with " + Strings.escapeAndQuote(text), (Test test) ->
+                    {
+                        final ByteReadStream stream = InMemoryCharacterToByteStream.create(text).endOfStream();
+                        test.assertEqual(expected, ProjectJSON.parse(stream).await());
+                        test.assertFalse(stream.isDisposed());
+                        test.assertThrows(() -> stream.readByte().await(),
+                            new EndOfStreamException());
+                    });
+                };
+
+                parseTest.run(
+                    "{}",
+                    ProjectJSON.create());
+                parseTest.run(
+                    "{\"publisher\":\"a\"}",
+                    ProjectJSON.create().setPublisher("a"));
+                parseTest.run(
+                    "{\"publisher\":5}",
+                    ProjectJSON.create(JSONObject.create()
+                        .setNumber("publisher", 5)));
+                parseTest.run(
+                    "{\"project\":\"b\"}",
+                    ProjectJSON.create().setProject("b"));
+                parseTest.run(
+                    "{\"project\":true}",
+                    ProjectJSON.create(JSONObject.create()
+                        .setBoolean("project", true)));
+                parseTest.run(
+                    "{\"version\":\"c\"}",
+                    ProjectJSON.create().setVersion("c"));
+                parseTest.run(
+                    "{\"version\":10}",
+                    ProjectJSON.create(JSONObject.create()
+                        .setNumber("version", 10)));
+                parseTest.run(
+                    "{\"version\":[]}",
+                    ProjectJSON.create(JSONObject.create()
+                        .setArray("version", Iterable.create())));
+                parseTest.run(
+                    "{\"java\":{}}",
+                    ProjectJSON.create(JSONObject.create()
+                        .setObject("java", JSONObject.create())));
+                parseTest.run(
+                    "{\"java\":[]}",
+                    ProjectJSON.create(JSONObject.create()
+                        .setArray("java", Iterable.create())));
+                parseTest.run(
+                    "{\"java\":true}",
+                    ProjectJSON.create(JSONObject.create()
+                        .setBoolean("java", true)));
+                parseTest.run(
+                    "{\"java\":false}",
+                    ProjectJSON.create(JSONObject.create()
+                        .setBoolean("java", false)));
+            });
+
+            runner.testGroup("parse(CharacterReadStream)", () ->
+            {
+                runner.test("with null", (Test test) ->
+                {
+                    test.assertThrows(() -> ProjectJSON.parse((CharacterReadStream)null),
+                        new PreConditionFailure("characters cannot be null."));
+                });
+
+                final Action2<String, ProjectJSON> parseTest = (String text, ProjectJSON expected) ->
+                {
+                    runner.test("with " + Strings.escapeAndQuote(text), (Test test) ->
+                    {
+                        final CharacterReadStream stream = InMemoryCharacterToByteStream.create(text).endOfStream();
+                        test.assertEqual(expected, ProjectJSON.parse(stream).await());
+                        test.assertFalse(stream.isDisposed());
+                        test.assertThrows(() -> stream.readCharacter().await(),
+                            new EndOfStreamException());
+                    });
+                };
+
+                parseTest.run(
+                    "{}",
+                    ProjectJSON.create());
+                parseTest.run(
+                    "{\"publisher\":\"a\"}",
+                    ProjectJSON.create().setPublisher("a"));
+                parseTest.run(
+                    "{\"publisher\":5}",
+                    ProjectJSON.create(JSONObject.create()
+                        .setNumber("publisher", 5)));
+                parseTest.run(
+                    "{\"project\":\"b\"}",
+                    ProjectJSON.create().setProject("b"));
+                parseTest.run(
+                    "{\"project\":true}",
+                    ProjectJSON.create(JSONObject.create()
+                        .setBoolean("project", true)));
+                parseTest.run(
+                    "{\"version\":\"c\"}",
+                    ProjectJSON.create().setVersion("c"));
+                parseTest.run(
+                    "{\"version\":10}",
+                    ProjectJSON.create(JSONObject.create()
+                        .setNumber("version", 10)));
+                parseTest.run(
+                    "{\"version\":[]}",
+                    ProjectJSON.create(JSONObject.create()
+                        .setArray("version", Iterable.create())));
+                parseTest.run(
+                    "{\"java\":{}}",
+                    ProjectJSON.create(JSONObject.create()
+                        .setObject("java", JSONObject.create())));
                 parseTest.run(
                     "{\"java\":[]}",
                     ProjectJSON.create(JSONObject.create()
@@ -471,7 +277,7 @@ public interface ProjectJSONTests
                 parseErrorTest.run("", new ParseException("Missing object left curly bracket ('{')."));
                 parseErrorTest.run("[]", new ParseException("Expected object left curly bracket ('{')."));
 
-                final Action2<String,ProjectJSON> parseTest = (String text, ProjectJSON expected) ->
+                final Action2<String, ProjectJSON> parseTest = (String text, ProjectJSON expected) ->
                 {
                     runner.test("with " + Strings.escapeAndQuote(text), (Test test) ->
                     {
@@ -509,8 +315,8 @@ public interface ProjectJSONTests
                         .setArray("version", Iterable.create())));
                 parseTest.run(
                     "{\"java\":{}}",
-                    ProjectJSON.create()
-                        .setJava(ProjectJSONJava.create()));
+                    ProjectJSON.create(JSONObject.create()
+                        .setObject("java", JSONObject.create())));
                 parseTest.run(
                     "{\"java\":[]}",
                     ProjectJSON.create(JSONObject.create()
@@ -540,7 +346,7 @@ public interface ProjectJSONTests
                 parseErrorTest.run("", new ParseException("Missing object left curly bracket ('{')."));
                 parseErrorTest.run("[]", new ParseException("Expected object left curly bracket ('{')."));
 
-                final Action2<String,ProjectJSON> parseTest = (String text, ProjectJSON expected) ->
+                final Action2<String, ProjectJSON> parseTest = (String text, ProjectJSON expected) ->
                 {
                     runner.test("with " + Strings.escapeAndQuote(text), (Test test) ->
                     {
@@ -578,8 +384,8 @@ public interface ProjectJSONTests
                         .setArray("version", Iterable.create())));
                 parseTest.run(
                     "{\"java\":{}}",
-                    ProjectJSON.create()
-                        .setJava(ProjectJSONJava.create()));
+                    ProjectJSON.create(JSONObject.create()
+                        .setObject("java", JSONObject.create())));
                 parseTest.run(
                     "{\"java\":[]}",
                     ProjectJSON.create(JSONObject.create()
@@ -609,7 +415,7 @@ public interface ProjectJSONTests
                 parseErrorTest.run("", new ParseException("Missing object left curly bracket ('{')."));
                 parseErrorTest.run("[]", new ParseException("Expected object left curly bracket ('{')."));
 
-                final Action2<String,ProjectJSON> parseTest = (String text, ProjectJSON expected) ->
+                final Action2<String, ProjectJSON> parseTest = (String text, ProjectJSON expected) ->
                 {
                     runner.test("with " + Strings.escapeAndQuote(text), (Test test) ->
                     {
@@ -647,8 +453,8 @@ public interface ProjectJSONTests
                         .setArray("version", Iterable.create())));
                 parseTest.run(
                     "{\"java\":{}}",
-                    ProjectJSON.create()
-                        .setJava(ProjectJSONJava.create()));
+                    ProjectJSON.create(JSONObject.create()
+                        .setObject("java", JSONObject.create())));
                 parseTest.run(
                     "{\"java\":[]}",
                     ProjectJSON.create(JSONObject.create()
@@ -662,6 +468,310 @@ public interface ProjectJSONTests
                     ProjectJSON.create(JSONObject.create()
                         .setBoolean("java", false)));
             });
+        });
+    }
+
+    static void test(TestRunner runner, Function0<? extends ProjectJSON> creator)
+    {
+        runner.testGroup(ProjectJSON.class, () ->
+        {
+            runner.testGroup("setSchema(String)", () ->
+            {
+                final Action2<String,Throwable> setSchemaErrorTest = (String schema, Throwable expected) ->
+                {
+                    runner.test("with " + Strings.escapeAndQuote(schema), (Test test) ->
+                    {
+                        final ProjectJSON projectJSON = creator.run();
+                        test.assertThrows(() -> projectJSON.setSchema(schema), expected);
+                        test.assertNull(projectJSON.getSchema());
+                    });
+                };
+
+                setSchemaErrorTest.run(null, new PreConditionFailure("schema cannot be null."));
+                setSchemaErrorTest.run("", new PreConditionFailure("schema cannot be empty."));
+
+                final Action1<String> setSchemaTest = (String schema) ->
+                {
+                    runner.test("with " + Strings.escapeAndQuote(schema), (Test test) ->
+                    {
+                        final ProjectJSON projectJSON = creator.run();
+                        final ProjectJSON setSchemaResult = projectJSON.setSchema(schema);
+                        test.assertSame(projectJSON, setSchemaResult);
+                        test.assertEqual(schema, projectJSON.getSchema());
+                    });
+                };
+
+                setSchemaTest.run("apples");
+                setSchemaTest.run("mangoes");
+                setSchemaTest.run("hello world");
+            });
+
+            runner.testGroup("setSchema(Path)", () ->
+            {
+                final Action2<Path,Throwable> setSchemaErrorTest = (Path schemaPath, Throwable expected) ->
+                {
+                    runner.test("with " + Strings.escapeAndQuote(schemaPath), (Test test) ->
+                    {
+                        final ProjectJSON projectJSON = creator.run();
+                        test.assertThrows(() -> projectJSON.setSchema(schemaPath), expected);
+                        test.assertNull(projectJSON.getSchema());
+                    });
+                };
+
+                setSchemaErrorTest.run(null, new PreConditionFailure("schemaPath cannot be null."));
+                setSchemaErrorTest.run(Path.parse("test/"), new PreConditionFailure("schemaPath.endsWith('/') || schemaPath.endsWith('\\') cannot be true."));
+                setSchemaErrorTest.run(Path.parse("/test/"), new PreConditionFailure("schemaPath.endsWith('/') || schemaPath.endsWith('\\') cannot be true."));
+                setSchemaErrorTest.run(Path.parse("test\\"), new PreConditionFailure("schemaPath.endsWith('/') || schemaPath.endsWith('\\') cannot be true."));
+                setSchemaErrorTest.run(Path.parse("\\test\\"), new PreConditionFailure("schemaPath.endsWith('/') || schemaPath.endsWith('\\') cannot be true."));
+
+                final Action1<Path> setSchemaTest = (Path schemaPath) ->
+                {
+                    runner.test("with " + Strings.escapeAndQuote(schemaPath), (Test test) ->
+                    {
+                        final ProjectJSON projectJSON = creator.run();
+                        final ProjectJSON setSchemaResult = projectJSON.setSchema(schemaPath);
+                        test.assertSame(projectJSON, setSchemaResult);
+                        test.assertEqual("file:///" + schemaPath.toString(), projectJSON.getSchema());
+                    });
+                };
+
+                setSchemaTest.run(Path.parse("apples"));
+                setSchemaTest.run(Path.parse("mangoes"));
+                setSchemaTest.run(Path.parse("hello world"));
+                setSchemaTest.run(Path.parse("folder/file"));
+                setSchemaTest.run(Path.parse("/folder/file"));
+            });
+
+            runner.testGroup("setSchema(File)", () ->
+            {
+                final Action2<File,Throwable> setSchemaErrorTest = (File schemaFile, Throwable expected) ->
+                {
+                    runner.test("with " + Strings.escapeAndQuote(schemaFile), (Test test) ->
+                    {
+                        final ProjectJSON projectJSON = creator.run();
+                        test.assertThrows(() -> projectJSON.setSchema(schemaFile), expected);
+                        test.assertNull(projectJSON.getSchema());
+                    });
+                };
+
+                setSchemaErrorTest.run(null, new PreConditionFailure("schemaFile cannot be null."));
+
+                final Action1<String> setSchemaTest = (String schemaFilePath) ->
+                {
+                    runner.test("with " + Strings.escapeAndQuote(schemaFilePath), (Test test) ->
+                    {
+                        final InMemoryFileSystem fileSystem = InMemoryFileSystem.create();
+                        fileSystem.createRoot("/").await();
+                        final File schemaFile = fileSystem.getFile(schemaFilePath).await();
+
+                        final ProjectJSON projectJSON = creator.run();
+                        final ProjectJSON setSchemaResult = projectJSON.setSchema(schemaFile);
+                        test.assertSame(projectJSON, setSchemaResult);
+                        test.assertEqual("file:///" + schemaFile.toString(), projectJSON.getSchema());
+                    });
+                };
+
+                setSchemaTest.run("/folder/file");
+            });
+
+            runner.testGroup("setSchema(URL)", () ->
+            {
+                final Action2<URL,Throwable> setSchemaErrorTest = (URL schemaUrl, Throwable expected) ->
+                {
+                    runner.test("with " + Strings.escapeAndQuote(schemaUrl), (Test test) ->
+                    {
+                        final ProjectJSON projectJSON = creator.run();
+                        test.assertThrows(() -> projectJSON.setSchema(schemaUrl), expected);
+                        test.assertNull(projectJSON.getSchema());
+                    });
+                };
+
+                setSchemaErrorTest.run(null, new PreConditionFailure("schemaUrl cannot be null."));
+
+                final Action1<URL> setSchemaTest = (URL schemaUrl) ->
+                {
+                    runner.test("with " + Strings.escapeAndQuote(schemaUrl), (Test test) ->
+                    {
+                        final ProjectJSON projectJSON = creator.run();
+                        final ProjectJSON setSchemaResult = projectJSON.setSchema(schemaUrl);
+                        test.assertSame(projectJSON, setSchemaResult);
+                        test.assertEqual(schemaUrl.toString(), projectJSON.getSchema());
+                    });
+                };
+
+                setSchemaTest.run(URL.parse("https://www.example.com/").await());
+            });
+
+            runner.testGroup("setPublisher(String)", () ->
+            {
+                final Action2<String,Throwable> setPublisherErrorTest = (String publisher, Throwable expected) ->
+                {
+                    runner.test("with " + Strings.escapeAndQuote(publisher), (Test test) ->
+                    {
+                        final ProjectJSON projectJSON = creator.run();
+                        test.assertThrows(() -> projectJSON.setPublisher(publisher), expected);
+                        test.assertNull(projectJSON.getPublisher());
+                    });
+                };
+
+                setPublisherErrorTest.run(null, new PreConditionFailure("publisher cannot be null."));
+                setPublisherErrorTest.run("", new PreConditionFailure("publisher cannot be empty."));
+
+                final Action1<String> setPublisherTest = (String publisher) ->
+                {
+                    runner.test("with " + Strings.escapeAndQuote(publisher), (Test test) ->
+                    {
+                        final ProjectJSON projectJSON = creator.run();
+                        test.<ProjectJSON>assertSame(projectJSON, projectJSON.setPublisher(publisher));
+                        test.assertEqual(publisher, projectJSON.getPublisher());
+                    });
+                };
+
+                setPublisherTest.run("apples");
+                setPublisherTest.run("mangoes");
+            });
+
+            runner.testGroup("setProject(String)", () ->
+            {
+                final Action2<String,Throwable> setProjectErrorTest = (String project, Throwable expected) ->
+                {
+                    runner.test("with " + Strings.escapeAndQuote(project), (Test test) ->
+                    {
+                        final ProjectJSON projectJSON = creator.run();
+                        test.assertThrows(() -> projectJSON.setProject(project), expected);
+                        test.assertNull(projectJSON.getProject());
+                    });
+                };
+
+                setProjectErrorTest.run(null, new PreConditionFailure("project cannot be null."));
+                setProjectErrorTest.run("", new PreConditionFailure("project cannot be empty."));
+
+                final Action1<String> setProjectTest = (String project) ->
+                {
+                    runner.test("with " + Strings.escapeAndQuote(project), (Test test) ->
+                    {
+                        final ProjectJSON projectJSON = creator.run();
+                        test.<ProjectJSON>assertSame(projectJSON, projectJSON.setProject(project));
+                        test.assertEqual(project, projectJSON.getProject());
+                    });
+                };
+
+                setProjectTest.run("apples");
+                setProjectTest.run("bananas");
+            });
+
+            runner.testGroup("setVersion(String)", () ->
+            {
+                final Action2<String,Throwable> setVersionErrorTest = (String version, Throwable expected) ->
+                {
+                    runner.test("with " + Strings.escapeAndQuote(version), (Test test) ->
+                    {
+                        final ProjectJSON projectJSON = creator.run();
+                        test.assertThrows(() -> projectJSON.setVersion(version), expected);
+                        test.assertNull(projectJSON.getVersion());
+                    });
+                };
+
+                setVersionErrorTest.run(null, new PreConditionFailure("version cannot be null."));
+                setVersionErrorTest.run("", new PreConditionFailure("version cannot be empty."));
+
+                final Action1<String> setVersionTest = (String version) ->
+                {
+                    runner.test("with " + Strings.escapeAndQuote(version), (Test test) ->
+                    {
+                        final ProjectJSON projectJSON = creator.run();
+                        final ProjectJSON setVersionResult = projectJSON.setVersion(version);
+                        test.assertSame(projectJSON, setVersionResult);
+                        test.assertEqual(version, projectJSON.getVersion().toString());
+                    });
+                };
+
+                setVersionTest.run("apples");
+                setVersionTest.run("apricots");
+            });
+
+            runner.testGroup("setVersion(VersionNumber)", () ->
+            {
+                final Action2<VersionNumber,Throwable> setVersionErrorTest = (VersionNumber version, Throwable expected) ->
+                {
+                    runner.test("with " + Strings.escapeAndQuote(version), (Test test) ->
+                    {
+                        final ProjectJSON projectJSON = creator.run();
+                        test.assertThrows(() -> projectJSON.setVersion(version), expected);
+                        test.assertNull(projectJSON.getVersion());
+                    });
+                };
+
+                setVersionErrorTest.run(null, new PreConditionFailure("version cannot be null."));
+                setVersionErrorTest.run(VersionNumber.create(), new PreConditionFailure("version cannot be empty."));
+
+                final Action1<VersionNumber> setVersionTest = (VersionNumber version) ->
+                {
+                    runner.test("with " + Strings.escapeAndQuote(version), (Test test) ->
+                    {
+                        final ProjectJSON projectJSON = creator.run();
+                        final ProjectJSON setVersionResult = projectJSON.setVersion(version);
+                        test.assertSame(projectJSON, setVersionResult);
+                        test.assertEqual(version, projectJSON.getVersion());
+                    });
+                };
+
+                setVersionTest.run(VersionNumber.create().addParts(1, 2, 3));
+                setVersionTest.run(VersionNumber.create().setSuffix("apricots"));
+            });
+
+            runner.testGroup("equals(Object)", () ->
+            {
+                final Action3<ProjectJSON,Object,Boolean> equalsTest = (ProjectJSON projectJson, Object rhs, Boolean expected) ->
+                {
+                    runner.test("with " + projectJson + " and " + rhs, (Test test) ->
+                    {
+                        test.assertEqual(expected, projectJson.equals(rhs));
+                    });
+                };
+
+                equalsTest.run(creator.run(), null, false);
+                equalsTest.run(creator.run(), "hello", false);
+                equalsTest.run(creator.run(), creator.run(), true);
+                equalsTest.run(
+                    creator.run().setPublisher("a"),
+                    creator.run().setPublisher("b"),
+                    false);
+                equalsTest.run(
+                    creator.run().setProject("a"),
+                    creator.run().setProject("b"),
+                    false);
+                equalsTest.run(
+                    creator.run().setVersion("a"),
+                    creator.run().setVersion("b"),
+                    false);
+            });
+
+            runner.testGroup("equals(ProjectJSON)", () ->
+            {
+                final Action3<ProjectJSON, ProjectJSON,Boolean> equalsTest = (ProjectJSON projectJson, ProjectJSON rhs, Boolean expected) ->
+                {
+                    runner.test("with " + projectJson + " and " + rhs, (Test test) ->
+                    {
+                        test.assertEqual(expected, projectJson.equals(rhs));
+                    });
+                };
+
+                equalsTest.run(creator.run(), null, false);
+                equalsTest.run(creator.run(), creator.run(), true);
+                equalsTest.run(
+                    creator.run().setPublisher("a"),
+                    creator.run().setPublisher("b"),
+                    false);
+                equalsTest.run(
+                    creator.run().setProject("a"),
+                    creator.run().setProject("b"),
+                    false);
+                equalsTest.run(
+                    creator.run().setVersion("a"),
+                    creator.run().setVersion("b"),
+                    false);
+            });
 
             runner.testGroup("toString()", () ->
             {
@@ -673,11 +783,10 @@ public interface ProjectJSONTests
                     });
                 };
 
-                parseTest.run(ProjectJSON.create(), "{}");
-                parseTest.run(ProjectJSON.create().setPublisher("a"), "{\"publisher\":\"a\"}");
-                parseTest.run(ProjectJSON.create().setProject("b"), "{\"project\":\"b\"}");
-                parseTest.run(ProjectJSON.create().setVersion("c"), "{\"version\":\"c\"}");
-                parseTest.run(ProjectJSON.create().setJava(ProjectJSONJava.create()), "{\"java\":{}}");
+                parseTest.run(creator.run(), "{}");
+                parseTest.run(creator.run().setPublisher("a"), "{\"publisher\":\"a\"}");
+                parseTest.run(creator.run().setProject("b"), "{\"project\":\"b\"}");
+                parseTest.run(creator.run().setVersion("c"), "{\"version\":\"c\"}");
             });
 
             runner.testGroup("toString(JSONFormat)", () ->
@@ -690,17 +799,15 @@ public interface ProjectJSONTests
                     });
                 };
 
-                parseTest.run(ProjectJSON.create(), JSONFormat.consise, "{}");
-                parseTest.run(ProjectJSON.create().setPublisher("a"), JSONFormat.consise, "{\"publisher\":\"a\"}");
-                parseTest.run(ProjectJSON.create().setProject("b"), JSONFormat.consise, "{\"project\":\"b\"}");
-                parseTest.run(ProjectJSON.create().setVersion("c"), JSONFormat.consise, "{\"version\":\"c\"}");
-                parseTest.run(ProjectJSON.create().setJava(ProjectJSONJava.create()), JSONFormat.consise, "{\"java\":{}}");
+                parseTest.run(creator.run(), JSONFormat.consise, "{}");
+                parseTest.run(creator.run().setPublisher("a"), JSONFormat.consise, "{\"publisher\":\"a\"}");
+                parseTest.run(creator.run().setProject("b"), JSONFormat.consise, "{\"project\":\"b\"}");
+                parseTest.run(creator.run().setVersion("c"), JSONFormat.consise, "{\"version\":\"c\"}");
 
-                parseTest.run(ProjectJSON.create(), JSONFormat.pretty, "{}");
-                parseTest.run(ProjectJSON.create().setPublisher("a"), JSONFormat.pretty, "{\n  \"publisher\": \"a\"\n}");
-                parseTest.run(ProjectJSON.create().setProject("b"), JSONFormat.pretty, "{\n  \"project\": \"b\"\n}");
-                parseTest.run(ProjectJSON.create().setVersion("c"), JSONFormat.pretty, "{\n  \"version\": \"c\"\n}");
-                parseTest.run(ProjectJSON.create().setJava(ProjectJSONJava.create()), JSONFormat.pretty, "{\n  \"java\": {}\n}");
+                parseTest.run(creator.run(), JSONFormat.pretty, "{}");
+                parseTest.run(creator.run().setPublisher("a"), JSONFormat.pretty, "{\n  \"publisher\": \"a\"\n}");
+                parseTest.run(creator.run().setProject("b"), JSONFormat.pretty, "{\n  \"project\": \"b\"\n}");
+                parseTest.run(creator.run().setVersion("c"), JSONFormat.pretty, "{\n  \"version\": \"c\"\n}");
             });
         });
     }
