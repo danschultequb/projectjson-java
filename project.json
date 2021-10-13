@@ -1,13 +1,13 @@
 {
   "publisher": "qub",
   "project": "projectjson-java",
-  "version": "107",
+  "version": "108",
   "java": {
     "dependencies": [
       {
         "publisher": "qub",
         "project": "lib-java",
-        "version": "158"
+        "version": "159"
       }
     ]
   }
