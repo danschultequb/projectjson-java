@@ -146,7 +146,7 @@ public interface ProjectJSONTests
                         test.assertEqual(expected, ProjectJSON.parse(stream).await());
                         test.assertFalse(stream.isDisposed());
                         test.assertThrows(() -> stream.readByte().await(),
-                            new EndOfStreamException());
+                            new EmptyException());
                     });
                 };
 
@@ -212,7 +212,7 @@ public interface ProjectJSONTests
                         test.assertEqual(expected, ProjectJSON.parse(stream).await());
                         test.assertFalse(stream.isDisposed());
                         test.assertThrows(() -> stream.readCharacter().await(),
-                            new EndOfStreamException());
+                            new EmptyException());
                     });
                 };
 
